@@ -1,0 +1,13 @@
+{
+  "source": ["src/styles/design-tokens.json"],
+  "platforms": {
+    "web": {
+      "transformGroup": "web",
+      "buildPath": "src/styles/",
+      "files": [{
+        "destination": "transformed-tokens.json",
+        "format": "json/nested"
+      }]
+    }
+  }
+} 

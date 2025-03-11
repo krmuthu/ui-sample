@@ -1,40 +1,94 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Clipper UI
+
+A modern UI component library with Figma design tokens integration.
+
+## Features
+
+- Next.js based component library
+- Tailwind CSS for styling
+- Storybook for component development and documentation
+- Figma design tokens integration with automated transformation pipeline
 
 ## Getting Started
 
-First, run the development server:
+1. Clone the repository
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+4. Open Storybook:
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run storybook
+```
 
-[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## Figma Design Tokens Integration
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
+This project includes a complete design tokens pipeline that can transform Figma design tokens into Tailwind CSS theme values.
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+### How It Works
 
-## Learn More
+1. Export design tokens from Figma using the "Tokens Studio for Figma" plugin
+2. Save the exported JSON file as `src/styles/design-tokens.json`
+3. Run the token transformation process:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run tokens
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This will:
+1. Transform the Figma tokens format to a Style Dictionary compatible format
+2. Generate a Tailwind-compatible theme
+3. Extract the simple values and create a clean theme file
+4. Automatically use the generated theme in the Tailwind configuration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
+### Using Design Tokens in Components
 
-## Deploy on Vercel
+Once the tokens are processed, you can use them in your components through Tailwind's utility classes:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```jsx
+// Using primary color token
+<div className="bg-primary-500 text-white">
+  This uses our primary brand color
+</div>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+// Using spacing tokens
+<div className="p-4 m-2">
+  This uses our spacing scale
+</div>
+```
+
+## Directory Structure
+
+```
+clipper-ui/
+├── src/                   # Source code
+│   ├── components/        # UI components
+│   ├── styles/            # Global styles and tokens
+│   │   ├── design-tokens.json       # Figma exported tokens
+│   │   ├── tailwind-theme-simple.js # Generated theme (use this)
+│   │   └── globals.css              # Global CSS
+├── scripts/               # Build and transformation scripts
+│   ├── transform-tokens.js          # Transforms Figma tokens
+│   └── extract-theme-values.js      # Extracts simple values
+├── .storybook/           # Storybook configuration
+└── tailwind.config.ts    # Tailwind configuration
+```
+
+## Customizing the Tokens Pipeline
+
+To customize how tokens are transformed:
+
+1. Edit `scripts/transform-tokens.js` to change token transformation logic
+2. Edit `sd.config.js` to change Style Dictionary processing
+3. Edit `scripts/extract-theme-values.js` to change value extraction logic
+
+For detailed documentation on using Figma design tokens, see `src/styles/FIGMA-TOKENS.md`.

@@ -2,6 +2,7 @@
   "name": "clipper-ui",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",
@@ -16,7 +17,11 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build:lib": "rollup -c",
-    "build:watch": "rollup -c -w"
+    "build:watch": "rollup -c -w",
+    "transform-tokens": "node scripts/transform-tokens.mjs",
+    "build-tokens": "style-dictionary build --config sd.config.mjs",
+    "extract-tokens": "node scripts/extract-theme-values.mjs",
+    "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens"
   },
   "dependencies": {
     "next": "14.2.24",
@@ -59,7 +64,9 @@
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
     "storybook": "^8.6.4",
+    "style-dictionary": "^4.3.3",
     "tailwindcss": "^3.4.1",
+    "token-transformer": "^0.0.33",
     "typescript": "^5",
     "vitest": "^3.0.8"
   }
