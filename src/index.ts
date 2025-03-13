@@ -8,4 +8,7 @@ export { default as Avatar } from './components/Avatar/Avatar';
 
 // Export version information
 export { default as version } from './utils/version';
-export { getVersion, getVersionInfo, getFormattedVersion } from './utils/version'; 
+export { getVersion, getVersionInfo, getFormattedVersion } from './utils/version';
+
+// Export theme
+export { default as theme, getThemeColor } from './utils/theme'; 

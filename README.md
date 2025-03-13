@@ -68,6 +68,58 @@ To watch for changes during development:
 npm run build:watch
 ```
 
+## Testing the Build
+
+To verify that the library builds correctly and is ready for use, you have several options:
+
+### 1. Basic Smoke Test
+
+Run a quick smoke test to check if the build files exist and appear valid:
+
+```bash
+npm run test:build
+```
+
+This will verify that:
+- All required build files exist
+- Files have proper content
+- Version information is valid
+
+### 2. Integration Test
+
+For a more thorough test, the repo includes an integration test project:
+
+```bash
+# First build the library
+npm run build:lib:prod
+
+# Then go to the test project
+cd examples/integration-test
+
+# Install dependencies
+npm install
+
+# Run the test app
+npm start
+```
+
+This will launch a simple React app that imports and uses all components from the library. If all components render correctly, your build is working properly.
+
+### 3. Using in Your Own Project
+
+To use the built library in another project:
+
+```bash
+# From your project
+npm install /path/to/clipper-ui
+```
+
+Or for a published version:
+
+```bash
+npm install clipper-ui
+```
+
 ## Versioning System
 
 The library includes a built-in versioning system that:
@@ -96,6 +148,51 @@ console.log(getVersion());
 console.log(getFormattedVersion());
 // 'clipper-ui v0.1.0 (2023-...)'
 ```
+
+## Theme System
+
+The library provides a centralized theme system with design tokens for colors, spacing, borders, etc. You can access the theme directly in your application for consistent styling.
+
+### Accessing Theme Tokens
+
+Import the theme in your React application:
+
+```jsx
+import { theme, getThemeColor } from 'clipper-ui';
+
+// Access color tokens
+console.log(theme.colors.primary[500]); // '#0EA5E9'
+
+// Use helper function to get colors with fallback
+const buttonColor = getThemeColor('primary', 600); // '#0284C7'
+```
+
+### Using with Tailwind CSS
+
+You can use the exported theme in your Tailwind configuration to ensure your application uses the same design tokens as the component library:
+
+```js
+// tailwind.config.js
+import { theme } from 'clipper-ui';
+
+export default {
+  content: [
+    './src/**/*.{js,ts,jsx,tsx}',
+  ],
+  theme: {
+    extend: {
+      colors: theme.colors,
+      spacing: theme.spacing,
+      borderRadius: theme.borderRadius,
+      boxShadow: theme.boxShadow,
+      fontSize: theme.fontSize,
+    },
+  },
+  plugins: [],
+};
+```
+
+This ensures your application's styles will be perfectly aligned with the component library's design system.
 
 ## Figma Design Tokens Integration
 
@@ -154,7 +251,10 @@ clipper-ui/
 │   ├── extract-theme-values.mjs      # Extracts simple values
 │   ├── version.js                    # Generates version information
 │   ├── rollup-plugin-version.js      # Rollup plugin for versioning
-│   └── build-prod.js                 # Production build script
+│   ├── build-prod.js                 # Production build script
+│   └── test-build.js                 # Build smoke test script
+├── examples/              # Example projects
+│   └── integration-test/  # Test project that imports and uses the library
 ├── .storybook/           # Storybook configuration
 │   ├── manager.js         # Storybook theme customization
 ├── dist/                 # Built output (generated)

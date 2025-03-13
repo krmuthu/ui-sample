@@ -23,7 +23,8 @@
     "build-tokens": "style-dictionary build --config sd.config.mjs",
     "extract-tokens": "node scripts/extract-theme-values.mjs",
     "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens",
-    "version:info": "node scripts/version.js"
+    "version:info": "node scripts/version.js",
+    "test:build": "node scripts/test-build.js"
   },
   "dependencies": {
     "next": "14.2.24",

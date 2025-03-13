@@ -49,6 +49,43 @@ Once your tokens are processed, you can use them in your components through Tail
 </div>
 ```
 
+### Consuming the Theme in Applications
+
+The theme is exported from the library, allowing consumers of the component library to use the same design tokens in their applications:
+
+```jsx
+// In your application code
+import { theme, getThemeColor } from 'clipper-ui';
+
+// Use theme values directly
+const primaryColor = theme.colors.primary[500];
+
+// Use helper functions
+const errorColor = getThemeColor('error', 600);
+```
+
+To use the theme with Tailwind CSS in your application:
+
+```js
+// tailwind.config.js in your application
+import { theme } from 'clipper-ui';
+
+export default {
+  // ...
+  theme: {
+    extend: {
+      colors: theme.colors,
+      spacing: theme.spacing,
+      borderRadius: theme.borderRadius,
+      boxShadow: theme.boxShadow,
+      fontSize: theme.fontSize,
+    },
+  },
+};
+```
+
+This ensures consistent styling between the component library and your application.
+
 ## Troubleshooting
 
 If you encounter issues with the tokens:
