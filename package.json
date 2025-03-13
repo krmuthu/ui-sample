@@ -17,11 +17,13 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "build:lib": "rollup -c",
+    "build:lib:prod": "node scripts/build-prod.js",
     "build:watch": "rollup -c -w",
     "transform-tokens": "node scripts/transform-tokens.mjs",
     "build-tokens": "style-dictionary build --config sd.config.mjs",
     "extract-tokens": "node scripts/extract-theme-values.mjs",
-    "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens"
+    "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens",
+    "version:info": "node scripts/version.js"
   },
   "dependencies": {
     "next": "14.2.24",
@@ -32,6 +34,7 @@
     "@chromatic-com/storybook": "^3.2.5",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-replace": "^5.0.5",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
     "@storybook/addon-essentials": "^8.6.4",
@@ -54,6 +57,7 @@
     "@vitest/browser": "^3.0.8",
     "@vitest/coverage-v8": "^3.0.8",
     "autoprefixer": "^10.4.21",
+    "cross-env": "^7.0.3",
     "eslint": "^8",
     "eslint-config-next": "14.2.24",
     "eslint-plugin-storybook": "^0.11.4",
