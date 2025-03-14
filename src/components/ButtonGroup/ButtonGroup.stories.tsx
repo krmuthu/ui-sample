@@ -2,8 +2,6 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import ButtonGroup from './ButtonGroup';
 import Button from '../Button/Button';
-import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
-import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
 const meta: Meta<typeof ButtonGroup> = {
   title: 'Components/ButtonGroup',
@@ -12,72 +10,28 @@ const meta: Meta<typeof ButtonGroup> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <ThemeProvider>
-        <div className="bg-[var(--background)] p-6 rounded-md transition-colors duration-200">
-          <div className="mb-4 flex justify-end">
-            <ThemeToggle variant="icon" />
-          </div>
-          <Story />
-        </div>
-      </ThemeProvider>
-    ),
-  ],
   argTypes: {
     orientation: {
       control: 'radio',
       options: ['horizontal', 'vertical'],
       description: 'The orientation of the button group',
-      table: {
-        defaultValue: { summary: 'horizontal' },
-      },
     },
     spacing: {
       control: 'select',
-      options: ['none', 'compact', 'default', 'loose'],
+      options: ['none', 'xs', 'sm', 'md', 'lg', 'xl'],
       description: 'The spacing between buttons',
-      table: {
-        defaultValue: { summary: 'default' },
-      },
-    },
-    variant: {
-      control: 'select',
-      options: ['primary', 'primary-positive', 'primary-negative', 'secondary', 'tertiary', 'tertiary-negative'],
-      description: 'The variant style to apply to all buttons',
-    },
-    size: {
-      control: 'radio',
-      options: ['standard', 'small'],
-      description: 'The size to apply to all buttons',
-      table: {
-        defaultValue: { summary: 'standard' },
-      },
-    },
-    fullWidth: {
-      control: 'boolean',
-      description: 'Whether buttons take full width',
-      table: {
-        defaultValue: { summary: 'false' },
-      },
     },
     connected: {
       control: 'boolean',
-      description: 'Whether buttons are connected without gap',
-      table: {
-        defaultValue: { summary: 'false' },
-      },
+      description: 'Whether the buttons should be connected visually',
     },
-    align: {
-      control: 'select',
-      options: ['left', 'center', 'right', 'between', 'around'],
-      description: 'Horizontal alignment when fullWidth is true',
-      table: {
-        defaultValue: { summary: 'left' },
-      },
+    fullWidth: {
+      control: 'boolean',
+      description: 'Whether the button group should take up the full width of its container',
     },
-    children: {
-      description: 'The button components to render',
+    className: {
+      control: 'text',
+      description: 'Additional CSS class names',
     },
   },
 };

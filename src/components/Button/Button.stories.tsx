@@ -1,25 +1,11 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import Button from './Button';
-import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
-import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
 const meta: Meta<typeof Button> = {
   title: 'Components/Button',
   component: Button,
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <ThemeProvider>
-        <div className="bg-[var(--background)] p-6 rounded-md transition-colors duration-200">
-          <div className="mb-4 flex justify-end">
-            <ThemeToggle variant="icon" />
-          </div>
-          <Story />
-        </div>
-      </ThemeProvider>
-    ),
-  ],
   argTypes: {
     variant: {
       control: 'select',

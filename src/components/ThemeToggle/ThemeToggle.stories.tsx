@@ -1,21 +1,11 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import ThemeToggle from './ThemeToggle';
-import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 
 const meta: Meta<typeof ThemeToggle> = {
   title: 'Components/ThemeToggle',
   component: ThemeToggle,
   tags: ['autodocs'],
-  decorators: [
-    (Story) => (
-      <ThemeProvider>
-        <div className="p-6">
-          <Story />
-        </div>
-      </ThemeProvider>
-    ),
-  ],
   argTypes: {
     variant: {
       control: 'radio',
