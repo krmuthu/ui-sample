@@ -1,6 +1,9 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
 import ButtonGroup from './ButtonGroup';
 import Button from '../Button/Button';
+import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
+import ThemeToggle from '../ThemeToggle/ThemeToggle';
 
 const meta: Meta<typeof ButtonGroup> = {
   title: 'Components/ButtonGroup',
@@ -9,6 +12,18 @@ const meta: Meta<typeof ButtonGroup> = {
     layout: 'centered',
   },
   tags: ['autodocs'],
+  decorators: [
+    (Story) => (
+      <ThemeProvider>
+        <div className="bg-[var(--background)] p-6 rounded-md transition-colors duration-200">
+          <div className="mb-4 flex justify-end">
+            <ThemeToggle variant="icon" />
+          </div>
+          <Story />
+        </div>
+      </ThemeProvider>
+    ),
+  ],
   argTypes: {
     orientation: {
       control: 'radio',
@@ -28,34 +43,29 @@ const meta: Meta<typeof ButtonGroup> = {
     },
     variant: {
       control: 'select',
-      options: ['contained', 'outlined', 'text'],
+      options: ['primary', 'primary-positive', 'primary-negative', 'secondary', 'tertiary', 'tertiary-negative'],
       description: 'The variant style to apply to all buttons',
-    },
-    color: {
-      control: 'select',
-      options: ['primary', 'secondary', 'success', 'error'],
-      description: 'The color theme to apply to all buttons',
     },
     size: {
       control: 'radio',
-      options: ['small', 'medium', 'large'],
+      options: ['standard', 'small'],
       description: 'The size to apply to all buttons',
       table: {
-        defaultValue: { summary: 'medium' },
+        defaultValue: { summary: 'standard' },
       },
     },
     fullWidth: {
       control: 'boolean',
       description: 'Whether buttons take full width',
       table: {
-        defaultValue: { summary: false },
+        defaultValue: { summary: 'false' },
       },
     },
     connected: {
       control: 'boolean',
       description: 'Whether buttons are connected without gap',
       table: {
-        defaultValue: { summary: false },
+        defaultValue: { summary: 'false' },
       },
     },
     align: {
@@ -67,7 +77,6 @@ const meta: Meta<typeof ButtonGroup> = {
       },
     },
     children: {
-      control: { type: null },
       description: 'The button components to render',
     },
   },
@@ -128,7 +137,7 @@ export const Connected: Story = {
  */
 export const Spacing: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 text-[var(--foreground)]">
       <div>
         <h3 className="mb-2 text-sm font-semibold">None</h3>
         <ButtonGroup spacing="none">
@@ -173,7 +182,7 @@ export const Spacing: Story = {
  */
 export const FullWidth: Story = {
   render: () => (
-    <div className="flex flex-col gap-8 w-full max-w-md">
+    <div className="flex flex-col gap-8 w-full max-w-md text-[var(--foreground)]">
       <div>
         <h3 className="mb-2 text-sm font-semibold">Left Aligned</h3>
         <ButtonGroup fullWidth align="left">
@@ -214,14 +223,14 @@ export const FullWidth: Story = {
 };
 
 /**
- * Overriding button variants
+ * Different button variants
  */
 export const Variants: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 text-[var(--foreground)]">
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Contained (Default)</h3>
-        <ButtonGroup variant="contained">
+        <h3 className="mb-2 text-sm font-semibold">Primary (Default)</h3>
+        <ButtonGroup variant="primary">
           <Button>Button 1</Button>
           <Button>Button 2</Button>
           <Button>Button 3</Button>
@@ -229,35 +238,8 @@ export const Variants: Story = {
       </div>
       
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Outlined</h3>
-        <ButtonGroup variant="outlined">
-          <Button>Button 1</Button>
-          <Button>Button 2</Button>
-          <Button>Button 3</Button>
-        </ButtonGroup>
-      </div>
-      
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Text</h3>
-        <ButtonGroup variant="text">
-          <Button>Button 1</Button>
-          <Button>Button 2</Button>
-          <Button>Button 3</Button>
-        </ButtonGroup>
-      </div>
-    </div>
-  ),
-};
-
-/**
- * Different button colors
- */
-export const Colors: Story = {
-  render: () => (
-    <div className="flex flex-col gap-8">
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Primary</h3>
-        <ButtonGroup color="primary">
+        <h3 className="mb-2 text-sm font-semibold">Primary Positive</h3>
+        <ButtonGroup variant="primary-positive">
           <Button>Button 1</Button>
           <Button>Button 2</Button>
           <Button>Button 3</Button>
@@ -266,7 +248,7 @@ export const Colors: Story = {
       
       <div>
         <h3 className="mb-2 text-sm font-semibold">Secondary</h3>
-        <ButtonGroup color="secondary">
+        <ButtonGroup variant="secondary">
           <Button>Button 1</Button>
           <Button>Button 2</Button>
           <Button>Button 3</Button>
@@ -274,17 +256,8 @@ export const Colors: Story = {
       </div>
       
       <div>
-        <h3 className="mb-2 text-sm font-semibold">Success</h3>
-        <ButtonGroup color="success">
-          <Button>Button 1</Button>
-          <Button>Button 2</Button>
-          <Button>Button 3</Button>
-        </ButtonGroup>
-      </div>
-      
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Error</h3>
-        <ButtonGroup color="error">
+        <h3 className="mb-2 text-sm font-semibold">Tertiary</h3>
+        <ButtonGroup variant="tertiary">
           <Button>Button 1</Button>
           <Button>Button 2</Button>
           <Button>Button 3</Button>
@@ -299,28 +272,19 @@ export const Colors: Story = {
  */
 export const Sizes: Story = {
   render: () => (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-8 text-[var(--foreground)]">
+      <div>
+        <h3 className="mb-2 text-sm font-semibold">Standard (Default)</h3>
+        <ButtonGroup size="standard">
+          <Button>Button 1</Button>
+          <Button>Button 2</Button>
+          <Button>Button 3</Button>
+        </ButtonGroup>
+      </div>
+      
       <div>
         <h3 className="mb-2 text-sm font-semibold">Small</h3>
         <ButtonGroup size="small">
-          <Button>Button 1</Button>
-          <Button>Button 2</Button>
-          <Button>Button 3</Button>
-        </ButtonGroup>
-      </div>
-      
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Medium (Default)</h3>
-        <ButtonGroup size="medium">
-          <Button>Button 1</Button>
-          <Button>Button 2</Button>
-          <Button>Button 3</Button>
-        </ButtonGroup>
-      </div>
-      
-      <div>
-        <h3 className="mb-2 text-sm font-semibold">Large</h3>
-        <ButtonGroup size="large">
           <Button>Button 1</Button>
           <Button>Button 2</Button>
           <Button>Button 3</Button>
@@ -336,13 +300,13 @@ export const Sizes: Story = {
 export const PaginationExample: Story = {
   args: {
     connected: true,
-    variant: 'outlined',
+    variant: "secondary",
     size: 'small',
     children: (
       <>
         <Button>⟨</Button>
         <Button>1</Button>
-        <Button variant="contained">2</Button>
+        <Button variant="primary">2</Button>
         <Button>3</Button>
         <Button>⟩</Button>
       </>
@@ -356,7 +320,7 @@ export const PaginationExample: Story = {
 export const ToggleButtonsExample: Story = {
   render: () => {
     return (
-      <ButtonGroup connected variant="outlined">
+      <ButtonGroup connected variant="secondary">
         <Button className="flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="8" y1="6" x2="21" y2="6" />
@@ -367,7 +331,7 @@ export const ToggleButtonsExample: Story = {
             <line x1="3" y1="18" x2="3.01" y2="18" />
           </svg>
         </Button>
-        <Button className="flex items-center justify-center" variant="contained">
+        <Button className="flex items-center justify-center" variant="primary">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="3" y="3" width="7" height="7" />
             <rect x="14" y="3" width="7" height="7" />

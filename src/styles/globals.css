@@ -4,13 +4,79 @@
 
 @layer base {
   :root {
+    /* Light theme (default) */
     --background: #ffffff;
     --foreground: #000000;
+    
+    /* Button colors - Light theme */
+    --btn-primary-bg: theme('colors.primary.600');
+    --btn-primary-hover: theme('colors.primary.700');
+    --btn-primary-text: #ffffff;
+    --btn-primary-ring: theme('colors.primary.500');
+
+    --btn-primary-positive-bg: theme('colors.success.600');
+    --btn-primary-positive-hover: theme('colors.success.700');
+    --btn-primary-positive-text: #ffffff;
+    --btn-primary-positive-ring: theme('colors.success.500');
+
+    --btn-primary-negative-bg: theme('colors.error.600');
+    --btn-primary-negative-hover: theme('colors.error.700');
+    --btn-primary-negative-text: #ffffff;
+    --btn-primary-negative-ring: theme('colors.error.500');
+
+    --btn-secondary-bg: theme('colors.neutral.100');
+    --btn-secondary-hover: theme('colors.neutral.200');
+    --btn-secondary-text: theme('colors.neutral.800');
+    --btn-secondary-ring: theme('colors.neutral.300');
+    --btn-secondary-border: theme('colors.neutral.300');
+
+    --btn-tertiary-bg: transparent;
+    --btn-tertiary-hover: theme('colors.neutral.100');
+    --btn-tertiary-text: theme('colors.neutral.700');
+    --btn-tertiary-ring: theme('colors.neutral.300');
+
+    --btn-tertiary-negative-bg: transparent;
+    --btn-tertiary-negative-hover: theme('colors.error.50');
+    --btn-tertiary-negative-text: theme('colors.error.600');
+    --btn-tertiary-negative-ring: theme('colors.error.300');
   }
 
   [data-theme='dark'] {
-    --background: #000000;
+    /* Dark theme */
+    --background: #121212;
     --foreground: #ffffff;
+    
+    /* Button colors - Dark theme */
+    --btn-primary-bg: theme('colors.primary.500');
+    --btn-primary-hover: theme('colors.primary.600');
+    --btn-primary-text: #ffffff;
+    --btn-primary-ring: theme('colors.primary.400');
+
+    --btn-primary-positive-bg: theme('colors.success.500');
+    --btn-primary-positive-hover: theme('colors.success.600');
+    --btn-primary-positive-text: #ffffff;
+    --btn-primary-positive-ring: theme('colors.success.400');
+
+    --btn-primary-negative-bg: theme('colors.error.500');
+    --btn-primary-negative-hover: theme('colors.error.600');
+    --btn-primary-negative-text: #ffffff;
+    --btn-primary-negative-ring: theme('colors.error.400');
+
+    --btn-secondary-bg: theme('colors.neutral.800');
+    --btn-secondary-hover: theme('colors.neutral.700');
+    --btn-secondary-text: theme('colors.neutral.100');
+    --btn-secondary-ring: theme('colors.neutral.600');
+    --btn-secondary-border: theme('colors.neutral.600');
+
+    --btn-tertiary-bg: transparent;
+    --btn-tertiary-hover: theme('colors.neutral.800');
+    --btn-tertiary-text: theme('colors.neutral.300');
+    --btn-tertiary-ring: theme('colors.neutral.600');
+
+    --btn-tertiary-negative-bg: transparent;
+    --btn-tertiary-negative-hover: theme('colors.error.900');
+    --btn-tertiary-negative-text: theme('colors.error.400');
+    --btn-tertiary-negative-ring: theme('colors.error.700');
   }
 }
 

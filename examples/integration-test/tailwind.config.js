@@ -10,6 +10,7 @@ export default {
     // Include the component library components
     '../../src/components/**/*.{js,ts,jsx,tsx}',
   ],
+  darkMode: ['class', '[data-theme="dark"]'], // Support both class and data-theme attribute
   theme: {
     extend: {
       colors: theme.colors,

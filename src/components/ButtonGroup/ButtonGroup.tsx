@@ -1,6 +1,9 @@
 import React from 'react';
 import { ButtonProps } from '../Button/Button';
 
+// Define the type for spacing options
+type SpacingType = 'none' | 'compact' | 'default' | 'loose';
+
 export interface ButtonGroupProps {
   /**
    * The buttons to be rendered inside the group
@@ -17,7 +20,7 @@ export interface ButtonGroupProps {
    * The spacing between buttons
    * @default 'default'
    */
-  spacing?: 'none' | 'compact' | 'default' | 'loose';
+  spacing?: SpacingType;
   
   /**
    * Variant to apply to all child buttons
@@ -26,14 +29,16 @@ export interface ButtonGroupProps {
   variant?: ButtonProps['variant'];
   
   /**
-   * Color to apply to all child buttons
-   * If provided, it will override individual button colors
+   * Button type to apply to all child buttons
+   * Alternative to 'variant' prop with same functionality but more semantic naming
+   * If both are provided, buttonType takes precedence
    */
-  color?: ButtonProps['color'];
+  buttonType?: ButtonProps['buttonType'];
   
   /**
    * Size to apply to all child buttons
    * If provided, it will override individual button sizes
+   * @default 'standard'
    */
   size?: ButtonProps['size'];
   
@@ -74,14 +79,17 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
   orientation = 'horizontal',
   spacing = 'default',
   variant,
-  color,
-  size,
+  buttonType,
+  size = 'standard',
   fullWidth = false,
   connected = false,
   align = 'left',
   className = '',
   ...props
 }) => {
+  // Use buttonType if provided, otherwise use variant
+  const effectiveVariant = buttonType || variant;
+  
   // Base styles
   const baseStyles = [
     'inline-flex',
@@ -103,82 +111,80 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
   }
   
   // Spacing styles (only applied when not connected)
-  const spacingStyles = !connected ? {
+  const spacingStyles: Record<SpacingType, string> = {
     none: 'gap-0',
-    compact: orientation === 'horizontal' ? 'gap-1' : 'gap-1',
-    default: orientation === 'horizontal' ? 'gap-2' : 'gap-2',
-    loose: orientation === 'horizontal' ? 'gap-4' : 'gap-3',
-  } : {
-    none: '',
-    compact: '',
-    default: '',
-    loose: ''
+    compact: 'gap-1',
+    default: 'gap-2',
+    loose: 'gap-4'
   };
   
-  // Add connected style
+  // Add spacing class if not connected
+  if (!connected) {
+    baseStyles.push(spacingStyles[spacing]);
+  }
+  
+  // Additional styles for connected buttons
   if (connected) {
     baseStyles.push('overflow-hidden');
   }
   
-  const combinedClassName = [
-    ...baseStyles,
-    spacingStyles[spacing],
-    className
-  ].filter(Boolean).join(' ');
-  
-  // Prepare children with appropriate styles and props
+  // CSS class string
+  const groupClasses = [...baseStyles, className].filter(Boolean).join(' ');
+
+  // Count children for proper styling
   const childrenCount = React.Children.count(children);
+
+  // Add variant, size, and connected styles to all buttons
   const enhancedChildren = React.Children.map(children, (child, index) => {
     if (React.isValidElement(child)) {
-      // Apply border radius adjustments for connected buttons
-      let borderRadiusClasses = '';
+      const childProps: EnhancedButtonProps = {};
       
-      if (connected && childrenCount > 1) {
-        if (orientation === 'horizontal') {
-          if (index === 0) {
-            borderRadiusClasses = 'rounded-r-none';
-          } else if (index === childrenCount - 1) {
-            borderRadiusClasses = 'rounded-l-none';
-          } else {
-            borderRadiusClasses = 'rounded-none';
-          }
-        } else { // vertical
-          if (index === 0) {
-            borderRadiusClasses = 'rounded-b-none';
-          } else if (index === childrenCount - 1) {
-            borderRadiusClasses = 'rounded-t-none';
-          } else {
-            borderRadiusClasses = 'rounded-none';
-          }
+      // Apply size and variant overrides
+      if (size) childProps.size = size;
+      if (effectiveVariant) childProps.variant = effectiveVariant;
+      if (buttonType) childProps.buttonType = buttonType;
+      
+      // For connected buttons, add special styling
+      if (connected && orientation === 'horizontal') {
+        let className = '';
+        if (index === 0) {
+          className = 'rounded-r-none';
+        } else if (index === childrenCount - 1) {
+          className = 'rounded-l-none';
+        } else {
+          className = 'rounded-none';
         }
+        childProps.className = className;
+      } else if (connected && orientation === 'vertical') {
+        let className = '';
+        if (index === 0) {
+          className = 'rounded-b-none';
+        } else if (index === childrenCount - 1) {
+          className = 'rounded-t-none';
+        } else {
+          className = 'rounded-none';
+        }
+        childProps.className = className;
       }
       
-      // Add negative margin to create the connected effect
-      let marginClasses = '';
+      // Add negative margin for connected effect
       if (connected && index > 0) {
-        marginClasses = orientation === 'horizontal' ? '-ml-px' : '-mt-px';
+        const marginDirection = orientation === 'horizontal' ? '-ml-px' : '-mt-px';
+        childProps.className = `${childProps.className || ''} ${marginDirection}`.trim();
       }
       
-      // Combine the child's existing className with our new classes
-      const childClassName = child.props.className || '';
-      const newClassName = `${childClassName} ${borderRadiusClasses} ${marginClasses}`.trim();
+      // Apply full width to children if the group is full width
+      if (fullWidth) {
+        childProps.fullWidth = true;
+      }
       
-      // Build the new props to pass to the child
-      const newChildProps: EnhancedButtonProps = {
-        ...(variant && { variant }),
-        ...(color && { color }),
-        ...(size && { size }),
-        ...(fullWidth && { fullWidth }),
-        className: newClassName,
-      };
-      
-      return React.cloneElement(child, newChildProps);
+      return React.cloneElement(child, childProps);
     }
     return child;
   });
-  
+
   return (
-    <div className={combinedClassName} role="group" {...props}>
+    <div role="group" className={groupClasses} {...props}>
       {enhancedChildren}
     </div>
   );

@@ -1,19 +1,54 @@
 import React from 'react';
 
+type ButtonVariant = 'primary' | 'primary-positive' | 'primary-negative' | 'secondary' | 'tertiary' | 'tertiary-negative';
+
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'contained' | 'outlined' | 'text';
-  color?: 'primary' | 'secondary' | 'success' | 'error';
-  size?: 'small' | 'medium' | 'large';
+  /**
+   * The variant style of the button.
+   * @default 'primary'
+   */
+  variant?: ButtonVariant;
+  
+  /**
+   * Alternative name for variant. Has the same effect as variant but allows for more semantic API.
+   * If both are provided, buttonType takes precedence.
+   * @default 'primary'
+   */
+  buttonType?: ButtonVariant;
+  
+  /**
+   * The size of the button.
+   * @default 'standard'
+   */
+  size?: 'standard' | 'small';
+  
+  /**
+   * Whether the button should take up the full width of its container.
+   * @default false
+   */
   fullWidth?: boolean;
+  
+  /**
+   * Whether the button is in a loading state.
+   * @default false
+   */
   loading?: boolean;
+  
+  /**
+   * Icon to display at the start of the button.
+   */
   startIcon?: React.ReactNode;
+  
+  /**
+   * Icon to display at the end of the button.
+   */
   endIcon?: React.ReactNode;
 }
 
 const Button: React.FC<ButtonProps> = ({
-  variant = 'contained',
-  color = 'primary',
-  size = 'medium',
+  variant = 'primary',
+  buttonType,
+  size = 'standard',
   disabled = false,
   fullWidth = false,
   loading = false,
@@ -25,6 +60,9 @@ const Button: React.FC<ButtonProps> = ({
   type = 'button',
   ...props
 }) => {
+  // Use buttonType if provided, otherwise use variant
+  const effectiveVariant = buttonType || variant;
+  
   // Base styles for all buttons
   const baseStyle = [
     'font-medium rounded-md',
@@ -38,30 +76,17 @@ const Button: React.FC<ButtonProps> = ({
   // Size variations
   const sizeClasses = {
     small: 'text-xs py-1.5 px-3 gap-1.5',
-    medium: 'text-sm py-2 px-4 gap-2',
-    large: 'text-base py-2.5 px-5 gap-2.5',
+    standard: 'text-sm py-2 px-4 gap-2',
   };
   
-  // Color and variant combinations
+  // Theme-aware variant style definitions using CSS variables
   const variantClasses = {
-    contained: {
-      primary: 'bg-primary-600 hover:bg-primary-700 text-white shadow-sm focus:ring-primary-500',
-      secondary: 'bg-secondary-600 hover:bg-secondary-700 text-white shadow-sm focus:ring-secondary-500',
-      success: 'bg-success-600 hover:bg-success-700 text-white shadow-sm focus:ring-success-500',
-      error: 'bg-error-600 hover:bg-error-700 text-white shadow-sm focus:ring-error-500',
-    },
-    outlined: {
-      primary: 'border-2 border-primary-600 text-primary-600 hover:bg-primary-50 focus:ring-primary-500 bg-transparent',
-      secondary: 'border-2 border-secondary-600 text-secondary-600 hover:bg-secondary-50 focus:ring-secondary-500 bg-transparent',
-      success: 'border-2 border-success-600 text-success-600 hover:bg-success-50 focus:ring-success-500 bg-transparent',
-      error: 'border-2 border-error-600 text-error-600 hover:bg-error-50 focus:ring-error-500 bg-transparent',
-    },
-    text: {
-      primary: 'text-primary-600 hover:bg-primary-50 focus:ring-primary-500 bg-transparent',
-      secondary: 'text-secondary-600 hover:bg-secondary-50 focus:ring-secondary-500 bg-transparent',
-      success: 'text-success-600 hover:bg-success-50 focus:ring-success-500 bg-transparent',
-      error: 'text-error-600 hover:bg-error-50 focus:ring-error-500 bg-transparent',
-    },
+    'primary': `bg-[var(--btn-primary-bg)] hover:bg-[var(--btn-primary-hover)] text-[var(--btn-primary-text)] shadow-sm focus:ring-[var(--btn-primary-ring)]`,
+    'primary-positive': `bg-[var(--btn-primary-positive-bg)] hover:bg-[var(--btn-primary-positive-hover)] text-[var(--btn-primary-positive-text)] shadow-sm focus:ring-[var(--btn-primary-positive-ring)]`,
+    'primary-negative': `bg-[var(--btn-primary-negative-bg)] hover:bg-[var(--btn-primary-negative-hover)] text-[var(--btn-primary-negative-text)] shadow-sm focus:ring-[var(--btn-primary-negative-ring)]`,
+    'secondary': `bg-[var(--btn-secondary-bg)] hover:bg-[var(--btn-secondary-hover)] text-[var(--btn-secondary-text)] shadow-sm focus:ring-[var(--btn-secondary-ring)] border border-[var(--btn-secondary-border)]`,
+    'tertiary': `bg-[var(--btn-tertiary-bg)] hover:bg-[var(--btn-tertiary-hover)] text-[var(--btn-tertiary-text)] focus:ring-[var(--btn-tertiary-ring)]`,
+    'tertiary-negative': `bg-[var(--btn-tertiary-negative-bg)] hover:bg-[var(--btn-tertiary-negative-hover)] text-[var(--btn-tertiary-negative-text)] focus:ring-[var(--btn-tertiary-negative-ring)]`,
   };
   
   // Full width style
@@ -74,7 +99,7 @@ const Button: React.FC<ButtonProps> = ({
   const buttonClasses = [
     baseStyle,
     sizeClasses[size],
-    variantClasses[variant][color],
+    variantClasses[effectiveVariant],
     widthClass,
     loadingClass,
     className

@@ -1,11 +1,23 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import '@testing-library/jest-dom';
 import ButtonGroup from './ButtonGroup';
 import Button from '../Button/Button';
+import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
+
+// Wrap components in ThemeProvider for testing
+const renderWithTheme = (ui: React.ReactElement, { theme = 'light' } = {}) => {
+  return render(
+    <ThemeProvider defaultTheme={theme as 'light' | 'dark'}>
+      {ui}
+    </ThemeProvider>
+  );
+};
 
 describe('ButtonGroup', () => {
   it('renders correctly with default props', () => {
-    render(
+    renderWithTheme(
       <ButtonGroup>
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -20,7 +32,7 @@ describe('ButtonGroup', () => {
   });
 
   it('applies horizontal orientation by default', () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ButtonGroup>
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -33,7 +45,7 @@ describe('ButtonGroup', () => {
   });
 
   it('applies vertical orientation when specified', () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ButtonGroup orientation="vertical">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -46,21 +58,21 @@ describe('ButtonGroup', () => {
   });
 
   it('applies correct spacing based on spacing prop', () => {
-    const { container: defaultContainer } = render(
+    const { container: defaultContainer } = renderWithTheme(
       <ButtonGroup>
         <Button>Button 1</Button>
         <Button>Button 2</Button>
       </ButtonGroup>
     );
     
-    const { container: compactContainer } = render(
+    const { container: compactContainer } = renderWithTheme(
       <ButtonGroup spacing="compact">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
       </ButtonGroup>
     );
     
-    const { container: looseContainer } = render(
+    const { container: looseContainer } = renderWithTheme(
       <ButtonGroup spacing="loose">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -73,7 +85,7 @@ describe('ButtonGroup', () => {
   });
 
   it('applies connected style correctly', () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ButtonGroup connected>
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -100,21 +112,21 @@ describe('ButtonGroup', () => {
   });
 
   it('applies alignment correctly when fullWidth is true', () => {
-    const { container: leftContainer } = render(
+    const { container: leftContainer } = renderWithTheme(
       <ButtonGroup fullWidth align="left">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
       </ButtonGroup>
     );
     
-    const { container: centerContainer } = render(
+    const { container: centerContainer } = renderWithTheme(
       <ButtonGroup fullWidth align="center">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
       </ButtonGroup>
     );
     
-    const { container: rightContainer } = render(
+    const { container: rightContainer } = renderWithTheme(
       <ButtonGroup fullWidth align="right">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -126,9 +138,9 @@ describe('ButtonGroup', () => {
     expect(rightContainer.firstChild).toHaveClass('w-full justify-end');
   });
 
-  it('passes variant, color, and size props to child buttons', () => {
-    render(
-      <ButtonGroup variant="outlined" color="secondary" size="small">
+  it('passes variant and size props to child buttons', () => {
+    renderWithTheme(
+      <ButtonGroup variant="secondary" size="small">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
       </ButtonGroup>
@@ -136,23 +148,17 @@ describe('ButtonGroup', () => {
     
     const buttons = screen.getAllByRole('button');
     
-    // Create a button with the expected props and extract its classes
-    const { container } = render(
-      <Button variant="outlined" color="secondary" size="small">Test</Button>
-    );
-    const expectedClasses = container.firstChild?.className.split(' ') || [];
+    // Both buttons should have the appropriate variant CSS variable classes
+    expect(buttons[0]).toHaveClass('bg-[var(--btn-secondary-bg)]');
+    expect(buttons[1]).toHaveClass('bg-[var(--btn-secondary-bg)]');
     
-    // Check that the buttons in the group have the same styling classes
-    expectedClasses.forEach(className => {
-      if (className.trim()) {
-        expect(buttons[0]).toHaveClass(className);
-        expect(buttons[1]).toHaveClass(className);
-      }
-    });
+    // Both buttons should have the small size class
+    expect(buttons[0]).toHaveClass('text-xs');
+    expect(buttons[1]).toHaveClass('text-xs');
   });
 
   it('respects custom className prop', () => {
-    const { container } = render(
+    const { container } = renderWithTheme(
       <ButtonGroup className="custom-class">
         <Button>Button 1</Button>
         <Button>Button 2</Button>
@@ -160,5 +166,23 @@ describe('ButtonGroup', () => {
     );
     
     expect(container.firstChild).toHaveClass('custom-class');
+  });
+
+  it('renders correctly in dark mode', () => {
+    renderWithTheme(
+      <ButtonGroup variant="primary">
+        <Button>Button 1</Button>
+        <Button>Button 2</Button>
+      </ButtonGroup>,
+      { theme: 'dark' }
+    );
+    
+    const buttons = screen.getAllByRole('button');
+    
+    // Both buttons should have the appropriate variant CSS variable classes
+    // The values of the CSS variables will be different in dark mode
+    // but the class names remain the same
+    expect(buttons[0]).toHaveClass('bg-[var(--btn-primary-bg)]');
+    expect(buttons[1]).toHaveClass('bg-[var(--btn-primary-bg)]');
   });
 }); 
