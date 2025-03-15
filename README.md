@@ -19,7 +19,18 @@ The library includes the following components:
 - **ButtonGroup**: For grouping related buttons with consistent styling and layout
 - **Link**: Text links with different styles and variants
 - **Avatar**: User avatars with image support, initials fallback, and status indicators
-- More components coming soon!
+- **TextField**: Text input component with support for labels, icons, validation, and different states
+- **Select**: Custom dropdown selection component with extensive keyboard navigation and state handling
+- **FormLabel**: Reusable form label component with required field indicator (asterisk)
+- **ThemeProvider**: Context provider for theme settings and dark/light mode support
+- **ThemeToggle**: Component for toggling between dark and light modes
+
+Each component is fully typed with TypeScript and includes:
+- Multiple variants and sizes
+- Comprehensive state handling (hover, focus, disabled, error, etc.)
+- Accessibility features (ARIA attributes, keyboard navigation)
+- Responsive design support
+- Extensive customization options
 
 ## Getting Started
 
@@ -236,32 +247,28 @@ Once the tokens are processed, you can use them in your components through Tailw
 clipper-ui/
 ├── src/                   # Source code
 │   ├── components/        # UI components
+│   │   ├── Avatar/        # Avatar component and tests
 │   │   ├── Button/        # Button component and tests
-│   │   ├── ButtonGroup/   # ButtonGroup component
-│   │   ├── Link/          # Link component
-│   │   └── Avatar/        # Avatar component
+│   │   ├── ButtonGroup/   # ButtonGroup component and tests
+│   │   ├── FormLabel/     # FormLabel component and tests
+│   │   ├── Link/          # Link component and tests
+│   │   ├── Select/        # Select component and tests
+│   │   ├── TextField/     # TextField component and tests
+│   │   ├── ThemeProvider/ # Theme provider and context
+│   │   └── ThemeToggle/   # Dark mode toggle component
 │   ├── styles/            # Global styles and tokens
 │   │   ├── design-tokens.json       # Figma exported tokens
 │   │   ├── tailwind-theme-simple.mjs # Generated theme
 │   │   └── globals.css              # Global CSS
 │   └── utils/             # Utility functions
-│       ├── version.ts     # Version utilities
+│       ├── theme.ts       # Theme utilities
+│       └── version.ts     # Version utilities
+├── examples/              # Example projects and integration tests
+│   └── integration-test/  # Test application using all components
 ├── scripts/               # Build and transformation scripts
 │   ├── transform-tokens.mjs          # Transforms Figma tokens
-│   ├── extract-theme-values.mjs      # Extracts simple values
-│   ├── version.js                    # Generates version information
-│   ├── rollup-plugin-version.js      # Rollup plugin for versioning
-│   ├── build-prod.js                 # Production build script
-│   └── test-build.js                 # Build smoke test script
-├── examples/              # Example projects
-│   └── integration-test/  # Test project that imports and uses the library
 ├── .storybook/           # Storybook configuration
-│   ├── manager.js         # Storybook theme customization
-├── dist/                 # Built output (generated)
-│   ├── index.js           # CommonJS bundle
-│   ├── index.esm.js       # ES Module bundle
-│   └── version.json       # Version information file
-└── tailwind.config.ts    # Tailwind configuration
+└── dist/                 # Built package output
 ```
 
 ## Customizing the Tokens Pipeline

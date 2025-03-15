@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Button,
   ButtonGroup,
@@ -8,13 +8,30 @@ import {
   useTheme,
   version,
   getFormattedVersion,
-  theme
+  theme,
+  TextField,
+  Radio,
+  Checkbox,
+  Switch,
+  FormLabel,
+  Dialog
 } from 'clipper-ui';
 import ThemeTest from './ThemeTest';
 
 function App() {
   const formattedVersion = getFormattedVersion();
   const { theme: currentTheme } = useTheme();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subscribeNews: true,
+    notificationMethod: 'email',
+    termsAgreed: false,
+    darkMode: false,
+    notifications: true,
+    autoSave: false
+  });
+  const [errors, setErrors] = useState({});
 
   // Helper for displaying theme colors
   const ColorSwatch = ({ color, shade, value }) => (
@@ -26,6 +43,65 @@ function App() {
       <span className="text-xs text-neutral-600 dark:text-neutral-400">{color}-{shade}</span>
     </div>
   );
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormData({
+      ...formData,
+      [name]: type === 'checkbox' ? checked : value
+    });
+    
+    // Clear error when field is changed
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: undefined
+      });
+    }
+  };
+
+  const handleSwitchChange = (name) => (e) => {
+    setFormData({
+      ...formData,
+      [name]: e.target.checked
+    });
+  };
+
+  const handleRadioChange = (e) => {
+    setFormData({
+      ...formData,
+      notificationMethod: e.target.value
+    });
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    
+    if (!formData.name.trim()) {
+      newErrors.name = 'Name is required';
+    }
+    
+    if (!formData.email.trim()) {
+      newErrors.email = 'Email is required';
+    } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Email is invalid';
+    }
+    
+    if (!formData.termsAgreed) {
+      newErrors.termsAgreed = 'You must agree to the terms and conditions';
+    }
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    if (validateForm()) {
+      alert('Form submitted successfully!\n\n' + JSON.stringify(formData, null, 2));
+    }
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -48,6 +124,143 @@ function App() {
       </section>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* Form Components Section */}
+        <section className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800 dark:text-white col-span-1 md:col-span-2 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Form Components</h2>
+          
+          <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Text Fields</h3>
+                <div className="space-y-4">
+                  <TextField
+                    label="Name"
+                    name="name"
+                    placeholder="Enter your name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    error={!!errors.name}
+                    errorMessage={errors.name}
+                    required
+                    fullWidth
+                  />
+                  
+                  <TextField
+                    label="Email"
+                    name="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    error={!!errors.email}
+                    errorMessage={errors.email}
+                    required
+                    fullWidth
+                    endIcon={
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    }
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-4">Radio Buttons</h3>
+                <FormLabel htmlFor="notification-method">Notification Method</FormLabel>
+                <div className="space-y-2 mt-2">
+                  <Radio
+                    label="Email"
+                    name="notificationMethod"
+                    value="email"
+                    checked={formData.notificationMethod === 'email'}
+                    onChange={handleRadioChange}
+                  />
+                  
+                  <Radio
+                    label="SMS"
+                    name="notificationMethod"
+                    value="sms"
+                    checked={formData.notificationMethod === 'sms'}
+                    onChange={handleRadioChange}
+                  />
+                  
+                  <Radio
+                    label="Push Notification"
+                    name="notificationMethod"
+                    value="push"
+                    checked={formData.notificationMethod === 'push'}
+                    onChange={handleRadioChange}
+                  />
+                </div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium mb-4">Checkboxes</h3>
+                <div className="space-y-2">
+                  <Checkbox
+                    label="Subscribe to newsletter"
+                    name="subscribeNews"
+                    checked={formData.subscribeNews}
+                    onChange={handleInputChange}
+                  />
+                  
+                  <Checkbox
+                    label="I agree to the terms and conditions"
+                    name="termsAgreed"
+                    checked={formData.termsAgreed}
+                    onChange={handleInputChange}
+                    error={!!errors.termsAgreed}
+                    errorMessage={errors.termsAgreed}
+                    required
+                  />
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium mb-4">Switches</h3>
+                <div className="space-y-4">
+                  <Switch
+                    label="Dark Mode"
+                    checked={formData.darkMode}
+                    onChange={handleSwitchChange('darkMode')}
+                    helperText="Enable dark mode for the application"
+                  />
+                  
+                  <Switch
+                    label="Enable Notifications"
+                    checked={formData.notifications}
+                    onChange={handleSwitchChange('notifications')}
+                    helperText="Receive notifications about updates"
+                  />
+                  
+                  <Switch
+                    label="Auto-save"
+                    checked={formData.autoSave}
+                    onChange={handleSwitchChange('autoSave')}
+                    helperText="Automatically save your changes"
+                  />
+                </div>
+              </div>
+              
+              <div className="mt-6">
+                <Button variant="primary" type="submit" fullWidth>
+                  Submit Form
+                </Button>
+              </div>
+            </div>
+            
+            <div className="md:col-span-2 mt-4 p-4 bg-gray-50 rounded-md dark:bg-gray-700">
+              <h3 className="text-lg font-medium mb-2">Form Data</h3>
+              <pre className="text-sm overflow-auto">
+                {JSON.stringify(formData, null, 2)}
+              </pre>
+            </div>
+          </form>
+        </section>
+
         {/* Theme section */}
         <section className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800 dark:text-white">
           <h2 className="text-xl font-semibold mb-4">Theme</h2>
@@ -313,6 +526,14 @@ function App() {
             <Link href="https://example.com" variant="secondary">Secondary Link</Link>
           </div>
         </section>
+
+        {/* Dialog section */}
+        <section className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800 dark:text-white col-span-1 md:col-span-2 mb-8">
+          <h2 className="text-xl font-semibold mb-4">Dialog</h2>
+          <div className="flex flex-wrap gap-4">
+            <DialogExample />
+          </div>
+        </section>
       </div>
 
       <footer className="mt-8 pt-6 border-t border-neutral-200 text-neutral-600 dark:text-neutral-400 dark:border-neutral-700">
@@ -327,6 +548,86 @@ function App() {
         </p>
       </footer>
     </div>
+  );
+}
+
+// Dialog Example Component
+function DialogExample() {
+  const [openBasic, setOpenBasic] = useState(false);
+  const [openWithFooter, setOpenWithFooter] = useState(false);
+  const [openLarge, setOpenLarge] = useState(false);
+  
+  return (
+    <>
+      <div className="flex flex-wrap gap-3">
+        <Button onClick={() => setOpenBasic(true)}>Basic Dialog</Button>
+        <Button onClick={() => setOpenWithFooter(true)}>Dialog with Footer</Button>
+        <Button onClick={() => setOpenLarge(true)}>Large Dialog</Button>
+      </div>
+      
+      {/* Basic Dialog */}
+      <Dialog
+        open={openBasic}
+        onClose={() => setOpenBasic(false)}
+        title="Basic Dialog"
+      >
+        <p>This is a basic dialog with a title and content.</p>
+        <p className="mt-2">Click outside or the close button to dismiss.</p>
+      </Dialog>
+      
+      {/* Dialog with Footer */}
+      <Dialog
+        open={openWithFooter}
+        onClose={() => setOpenWithFooter(false)}
+        title="Confirmation"
+        footer={
+          <div className="flex justify-end gap-2">
+            <Button variant="tertiary" onClick={() => setOpenWithFooter(false)}>
+              Cancel
+            </Button>
+            <Button variant="primary" onClick={() => setOpenWithFooter(false)}>
+              Confirm
+            </Button>
+          </div>
+        }
+      >
+        <p>Are you sure you want to proceed with this action?</p>
+        <p className="mt-2 text-gray-600 dark:text-gray-400">This action cannot be undone.</p>
+      </Dialog>
+      
+      {/* Large Dialog */}
+      <Dialog
+        open={openLarge}
+        onClose={() => setOpenLarge(false)}
+        title="Feature Overview"
+        size="large"
+      >
+        <div className="space-y-4">
+          <p>This dialog demonstrates a larger size option that's perfect for displaying more content.</p>
+          
+          <h3 className="text-lg font-medium">Key Features</h3>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>Responsive sizing with small, medium, and large options</li>
+            <li>Backdrop click to close (can be disabled)</li>
+            <li>ESC key to close (can be disabled)</li>
+            <li>Optional footer area for actions</li>
+            <li>Fully accessible with keyboard navigation</li>
+            <li>Focus management for improved user experience</li>
+            <li>Customizable with additional CSS classes</li>
+          </ul>
+          
+          <h3 className="text-lg font-medium mt-4">Usage Examples</h3>
+          <p>The Dialog component is perfect for:</p>
+          <ul className="list-disc pl-5 space-y-2">
+            <li>Confirmation prompts</li>
+            <li>Form inputs</li>
+            <li>Detailed information display</li>
+            <li>Multi-step processes</li>
+            <li>Settings panels</li>
+          </ul>
+        </div>
+      </Dialog>
+    </>
   );
 }
 
