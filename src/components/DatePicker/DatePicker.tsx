@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import Calendar from '../Calendar/Calendar';
 
 export interface DatePickerProps {
   /**
@@ -51,6 +52,11 @@ export interface DatePickerProps {
   disabledDates?: Date[];
   
   /**
+   * Custom function to determine if a date should be disabled
+   */
+  isDateDisabled?: (date: Date) => boolean;
+  
+  /**
    * Whether to display a clear button
    * @default true
    */
@@ -82,6 +88,12 @@ export interface DatePickerProps {
    * @default "medium"
    */
   size?: 'small' | 'medium' | 'large';
+  
+  /**
+   * The visual variant of the date picker
+   * @default "primary"
+   */
+  variant?: 'primary' | 'secondary' | 'tertiary';
   
   /**
    * Additional class name for the date picker container
@@ -188,79 +200,6 @@ const parseDate = (dateString: string, format: string): Date | null => {
   return isNaN(date.getTime()) ? null : date;
 };
 
-const isDateDisabled = (
-  date: Date,
-  minDate?: Date,
-  maxDate?: Date,
-  disabledDates?: Date[]
-): boolean => {
-  // Check if date is within min and max bounds
-  if (minDate && date < minDate) return true;
-  if (maxDate && date > maxDate) return true;
-  
-  // Check if date is in disabled dates array
-  if (disabledDates) {
-    return disabledDates.some(disabledDate => 
-      disabledDate.getFullYear() === date.getFullYear() &&
-      disabledDate.getMonth() === date.getMonth() &&
-      disabledDate.getDate() === date.getDate()
-    );
-  }
-  
-  return false;
-};
-
-const generateCalendarDays = (
-  month: number,
-  year: number,
-  minDate?: Date,
-  maxDate?: Date,
-  disabledDates?: Date[]
-): Array<{ date: Date; disabled: boolean; isCurrentMonth: boolean }> => {
-  const result = [];
-  
-  // Get the first day of the month
-  const firstDay = new Date(year, month, 1);
-  const firstDayOfWeek = firstDay.getDay();
-  
-  // Get the last day of the month
-  const lastDay = new Date(year, month + 1, 0);
-  
-  // Add days from previous month to fill the first week
-  const prevMonthLastDay = new Date(year, month, 0).getDate();
-  for (let i = firstDayOfWeek - 1; i >= 0; i--) {
-    const date = new Date(year, month - 1, prevMonthLastDay - i);
-    result.push({
-      date,
-      disabled: isDateDisabled(date, minDate, maxDate, disabledDates),
-      isCurrentMonth: false
-    });
-  }
-  
-  // Add days of current month
-  for (let i = 1; i <= lastDay.getDate(); i++) {
-    const date = new Date(year, month, i);
-    result.push({
-      date,
-      disabled: isDateDisabled(date, minDate, maxDate, disabledDates),
-      isCurrentMonth: true
-    });
-  }
-  
-  // Add days from next month to complete the last week
-  const lastDayOfWeek = lastDay.getDay();
-  for (let i = 1; i < 7 - lastDayOfWeek; i++) {
-    const date = new Date(year, month + 1, i);
-    result.push({
-      date,
-      disabled: isDateDisabled(date, minDate, maxDate, disabledDates),
-      isCurrentMonth: false
-    });
-  }
-  
-  return result;
-};
-
 // Date Picker Component
 const DatePicker: React.FC<DatePickerProps> = ({
   value = null,
@@ -272,12 +211,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
   minDate,
   maxDate,
   disabledDates = [],
+  isDateDisabled,
   clearable = true,
   error = false,
   errorMessage,
   helperText,
   fullWidth = false,
   size = 'medium',
+  variant = 'primary',
   className = '',
   inputClassName = '',
   id,
@@ -293,13 +234,11 @@ const DatePicker: React.FC<DatePickerProps> = ({
   // State hooks
   const [isOpen, setIsOpen] = useState(false);
   const [inputValue, setInputValue] = useState(value ? formatDate(value, displayFormat, locale) : '');
-  const [currentMonth, setCurrentMonth] = useState(() => value || initialMonth || new Date());
-  const [calendarDays, setCalendarDays] = useState<Array<{ date: Date; disabled: boolean; isCurrentMonth: boolean }>>([]);
-  const [mounted, setMounted] = useState(false);
   const [calendarPosition, setCalendarPosition] = useState({ 
     translateX: -1000,
     translateY: -1000
   });
+  const [mounted, setMounted] = useState(false);
   
   // Refs
   const inputRef = useRef<HTMLInputElement>(null);
@@ -320,27 +259,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
   useEffect(() => {
     if (value) {
       setInputValue(formatDate(value, displayFormat, locale));
-      if (!currentMonth || 
-          value.getFullYear() !== currentMonth.getFullYear() || 
-          value.getMonth() !== currentMonth.getMonth()) {
-        setCurrentMonth(value);
-      }
     } else {
       setInputValue('');
     }
   }, [value, displayFormat, locale]);
-  
-  useEffect(() => {
-    if (!currentMonth) return;
-    
-    setCalendarDays(generateCalendarDays(
-      currentMonth.getMonth(),
-      currentMonth.getFullYear(),
-      minDate,
-      maxDate,
-      disabledDates
-    ));
-  }, [currentMonth]);
   
   // Handle outside click to close calendar
   useEffect(() => {
@@ -425,28 +347,13 @@ const DatePicker: React.FC<DatePickerProps> = ({
     }
     
     const parsedDate = parseDate(newValue, displayFormat);
-    if (
-      parsedDate &&
-      !isDateDisabled(parsedDate, minDate, maxDate, disabledDates)
-    ) {
+    if (parsedDate) {
       if (onChange) onChange(parsedDate);
     }
   };
   
   const handleDateSelect = (date: Date) => {
-    if (value && 
-        date.getFullYear() === value.getFullYear() && 
-        date.getMonth() === value.getMonth() && 
-        date.getDate() === value.getDate()) {
-      if (closeOnSelect) {
-        setIsOpen(false);
-        if (onClose) onClose();
-      }
-      return;
-    }
-    
-    const formattedDate = formatDate(date, displayFormat, locale);
-    setInputValue(formattedDate);
+    setInputValue(formatDate(date, displayFormat, locale));
     touchedRef.current = true;
     
     if (onChange) onChange(date);
@@ -455,22 +362,6 @@ const DatePicker: React.FC<DatePickerProps> = ({
       setIsOpen(false);
       if (onClose) onClose();
     }
-  };
-  
-  const handlePrevMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1));
-  };
-  
-  const handleNextMonth = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
-  };
-  
-  const handlePrevYear = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth(), 1));
-  };
-  
-  const handleNextYear = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear() + 1, currentMonth.getMonth(), 1));
   };
   
   const handleClear = () => {
@@ -503,10 +394,34 @@ const DatePicker: React.FC<DatePickerProps> = ({
   
   // Style classes
   const sizeClasses = {
-    small: 'text-xs py-1 px-2',
-    medium: 'text-sm py-2 px-3',
-    large: 'text-base py-2.5 px-4',
+    small: 'py-1 px-2 text-sm',
+    medium: 'py-2 px-3 text-base',
+    large: 'py-3 px-4 text-lg',
   };
+  
+  // Separate text and border colors
+  const variantTextClasses = {
+    primary: 'text-[var(--foreground)]',
+    secondary: 'text-[var(--btn-secondary-text)]',
+    tertiary: 'text-[var(--btn-tertiary-text)]',
+  };
+  
+  // Border classes - only applied when not in error state
+  const variantBorderClasses = {
+    primary: 'border-[var(--btn-primary-ring)]',
+    secondary: 'border-[var(--btn-secondary-ring)]',
+    tertiary: 'border-[var(--btn-tertiary-ring)]',
+  };
+  
+  // Background classes
+  const variantBgClasses = {
+    primary: 'bg-[var(--input-background)]',
+    secondary: 'bg-transparent',
+    tertiary: 'border-transparent',
+  };
+  
+  // Padding adjustments for icons
+  const startIconPadding = startIcon ? 'pl-9' : '';
   
   const inputClasses = [
     'rounded-md',
@@ -516,15 +431,14 @@ const DatePicker: React.FC<DatePickerProps> = ({
     'w-full',
     'focus:outline-none',
     'focus:ring-2',
-    'focus:ring-primary-500',
-    'dark:bg-gray-800',
-    'dark:text-white',
+    variantTextClasses[variant],
+    variantBgClasses[variant],
     sizeClasses[size],
+    startIconPadding,
     error 
-      ? 'border-error-500 focus:border-error-500 focus:ring-error-500' 
-      : 'border-gray-300 focus:border-primary-500 dark:border-gray-600',
-    disabled ? 'bg-gray-100 cursor-not-allowed opacity-60 dark:bg-gray-700' : 'bg-white',
-    startIcon ? 'pl-8' : '',
+      ? 'border-[var(--btn-primary-negative-bg)] focus:border-[var(--btn-primary-negative-bg)] focus:ring-[var(--btn-primary-negative-ring)]' 
+      : variantBorderClasses[variant] + ' focus:border-[var(--btn-primary-ring)] focus:ring-[var(--btn-primary-ring)]',
+    disabled ? 'cursor-not-allowed opacity-60 bg-[var(--btn-disabled-bg)]' : '',
     inputClassName
   ].filter(Boolean).join(' ');
   
@@ -534,18 +448,18 @@ const DatePicker: React.FC<DatePickerProps> = ({
     className
   ].filter(Boolean).join(' ');
   
-  // Calendar day names
-  const dayNames = Array.from({ length: 7 }, (_, i) => {
-    const date = new Date(2023, 0, i + 1); // Using a Sunday in 2023 as a reference
-    return date.toLocaleDateString(locale, { weekday: 'short' });
-  });
+  // Calendar classes
+  const calendarContainerClasses = [
+    'absolute z-50 shadow-lg mt-1',
+    'w-auto'
+  ].join(' ');
   
   // Calendar rendering
-  const calendar = isOpen && mounted ? (
+  const calendarComponent = isOpen && mounted ? (
     <div 
       ref={calendarRef}
       id={calendarId}
-      className="absolute z-50 bg-white border border-gray-200 rounded-md shadow-lg p-3 dark:bg-gray-800 dark:border-gray-700 w-64"
+      className={calendarContainerClasses}
       role="dialog"
       aria-modal="true"
       aria-label="Date picker calendar"
@@ -554,111 +468,22 @@ const DatePicker: React.FC<DatePickerProps> = ({
         inset: '0px auto auto 0px',
       }}
     >
-      {/* Calendar header */}
-      <div className="flex justify-between items-center mb-2">
-        <div className="flex items-center space-x-1">
-          <button 
-            type="button"
-            className="p-1 hover:bg-gray-100 rounded dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-            onClick={handlePrevYear}
-            aria-label="Previous year"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 19l-7-7 7-7m8 14l-7-7 7-7" />
-            </svg>
-          </button>
-          <button 
-            type="button"
-            className="p-1 hover:bg-gray-100 rounded dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-            onClick={handlePrevMonth}
-            aria-label="Previous month"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-            </svg>
-          </button>
-        </div>
-        
-        <div className="text-sm font-medium">
-          {currentMonth.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}
-        </div>
-        
-        <div className="flex items-center space-x-1">
-          <button 
-            type="button"
-            className="p-1 hover:bg-gray-100 rounded dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-            onClick={handleNextMonth}
-            aria-label="Next month"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-            </svg>
-          </button>
-          <button 
-            type="button"
-            className="p-1 hover:bg-gray-100 rounded dark:hover:bg-gray-700 text-gray-600 dark:text-gray-400"
-            onClick={handleNextYear}
-            aria-label="Next year"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-            </svg>
-          </button>
-        </div>
-      </div>
-      
-      {/* Weekday header */}
-      <div className="grid grid-cols-7 gap-1 mb-1">
-        {dayNames.map((day, index) => (
-          <div 
-            key={`header-${index}`} 
-            className="text-xs font-medium text-center text-gray-500 dark:text-gray-400 py-1"
-          >
-            {day.substring(0, 1)}
-          </div>
-        ))}
-      </div>
-      
-      {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-1">
-        {calendarDays.map((day, index) => {
-          const isSelected = value && 
-            day.date.getFullYear() === value.getFullYear() && 
-            day.date.getMonth() === value.getMonth() && 
-            day.date.getDate() === value.getDate();
-          
-          const isToday = (() => {
-            const today = new Date();
-            return day.date.getFullYear() === today.getFullYear() && 
-              day.date.getMonth() === today.getMonth() && 
-              day.date.getDate() === today.getDate();
-          })();
-          
-          return (
-            <button
-              key={`day-${index}`}
-              type="button"
-              disabled={day.disabled}
-              onClick={() => !day.disabled && handleDateSelect(day.date)}
-              className={`
-                text-center p-1 rounded text-sm
-                ${day.isCurrentMonth ? 'text-gray-900 dark:text-gray-200' : 'text-gray-400 dark:text-gray-500'}
-                ${day.disabled ? 'opacity-40 cursor-not-allowed' : 'hover:bg-gray-100 dark:hover:bg-gray-700'}
-                ${isSelected ? 'bg-primary-500 text-white hover:bg-primary-600 dark:hover:bg-primary-600' : ''}
-                ${isToday && !isSelected ? 'border border-primary-500' : ''}
-              `}
-              aria-label={day.date.toLocaleDateString(locale, { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-              aria-selected={isSelected || false}
-            >
-              {day.date.getDate()}
-            </button>
-          );
-        })}
-      </div>
+      <Calendar
+        value={value}
+        onChange={onChange}
+        minDate={minDate}
+        maxDate={maxDate}
+        disabledDates={disabledDates}
+        isDateDisabled={isDateDisabled}
+        closeOnSelect={closeOnSelect}
+        initialMonth={value || initialMonth}
+        locale={locale}
+        onDateSelect={date => handleDateSelect(date)}
+        onClose={() => {
+          setIsOpen(false);
+          if (onClose) onClose();
+        }}
+      />
     </div>
   ) : null;
   
@@ -667,10 +492,10 @@ const DatePicker: React.FC<DatePickerProps> = ({
       {label && (
         <label 
           htmlFor={inputId}
-          className={`block text-sm font-medium ${error ? 'text-error-500' : 'text-gray-700 dark:text-gray-300'} mb-1`}
+          className={`block text-sm font-medium ${error ? 'text-[var(--btn-primary-negative-text)]' : 'text-[var(--foreground)]'} mb-1`}
         >
           {label}
-          {required && <span className="ml-1 text-error-500">*</span>}
+          {required && <span className="ml-1 text-[var(--btn-primary-negative-text)]">*</span>}
         </label>
       )}
       
@@ -709,7 +534,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         
         <div className="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none">
           <svg 
-            className={`h-5 w-5 ${error ? 'text-error-500' : 'text-gray-400'}`} 
+            className={`h-5 w-5 ${error ? 'text-[var(--btn-primary-negative-text)]' : 'text-[var(--btn-secondary-text)]'}`} 
             fill="none" 
             viewBox="0 0 24 24" 
             stroke="currentColor"
@@ -726,7 +551,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         {clearable && inputValue && !disabled && (
           <button
             type="button"
-            className="absolute inset-y-0 right-7 flex items-center text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+            className="absolute inset-y-0 right-7 flex items-center text-[var(--btn-secondary-text)] hover:text-[var(--foreground)]"
             onClick={handleClear}
             aria-label="Clear date"
           >
@@ -736,17 +561,17 @@ const DatePicker: React.FC<DatePickerProps> = ({
           </button>
         )}
         
-        {mounted && isOpen && createPortal(calendar, document.body)}
+        {mounted && isOpen && createPortal(calendarComponent, document.body)}
       </div>
       
       {error && errorMessage && (
-        <p className="mt-1 text-xs text-error-500" id={`${inputId}-error`}>
+        <p className="mt-1 text-xs text-[var(--btn-primary-negative-text)]" id={`${inputId}-error`}>
           {errorMessage}
         </p>
       )}
       
       {helperText && !error && (
-        <p className="mt-1 text-xs text-gray-500 dark:text-gray-400" id={`${inputId}-helper`}>
+        <p className="mt-1 text-xs text-[var(--btn-secondary-text)]" id={`${inputId}-helper`}>
           {helperText}
         </p>
       )}
