@@ -1,0 +1,34 @@
+/* Table component variables */
+:root {
+  /* Table colors */
+  --table-border: var(--border-color, rgba(0, 0, 0, 0.12));
+  --table-header-bg: var(--primary-light, rgba(25, 118, 210, 0.08));
+  --table-header-text: var(--text-primary, rgba(0, 0, 0, 0.87));
+  --table-stripe-bg: var(--background-secondary, rgba(0, 0, 0, 0.04));
+  --table-hover-bg: var(--hover-bg, rgba(0, 0, 0, 0.08));
+  --table-empty-text: var(--text-secondary, rgba(0, 0, 0, 0.6));
+  
+  /* Button colors used in pagination */
+  --btn-primary-bg: var(--primary, #1976d2);
+  --btn-primary-text: var(--white, #ffffff);
+  --btn-primary-ring: var(--primary-light, rgba(25, 118, 210, 0.5));
+  --btn-secondary-hover: var(--hover-bg, rgba(0, 0, 0, 0.08));
+  --btn-secondary-border: var(--border-color, rgba(0, 0, 0, 0.23));
+}
+
+/* Dark theme variables */
+.dark-theme {
+  --table-border: var(--border-color-dark, rgba(255, 255, 255, 0.12));
+  --table-header-bg: var(--primary-dark, rgba(25, 118, 210, 0.15));
+  --table-header-text: var(--text-primary-dark, rgba(255, 255, 255, 0.9));
+  --table-stripe-bg: var(--background-secondary-dark, rgba(255, 255, 255, 0.05));
+  --table-hover-bg: var(--hover-bg-dark, rgba(255, 255, 255, 0.1));
+  --table-empty-text: var(--text-secondary-dark, rgba(255, 255, 255, 0.7));
+  
+  /* Button colors used in pagination */
+  --btn-primary-bg: var(--primary-dark, #42a5f5);
+  --btn-primary-text: var(--black, #000000);
+  --btn-primary-ring: var(--primary-light-dark, rgba(66, 165, 245, 0.5));
+  --btn-secondary-hover: var(--hover-bg-dark, rgba(255, 255, 255, 0.1));
+  --btn-secondary-border: var(--border-color-dark, rgba(255, 255, 255, 0.23));
+} 

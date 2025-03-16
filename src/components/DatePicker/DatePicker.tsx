@@ -57,6 +57,18 @@ export interface DatePickerProps {
   isDateDisabled?: (date: Date) => boolean;
   
   /**
+   * Whether to disable all dates before the current date
+   * @default false
+   */
+  disablePast?: boolean;
+  
+  /**
+   * Whether to disable all dates after the current date
+   * @default false
+   */
+  disableFuture?: boolean;
+  
+  /**
    * Whether to display a clear button
    * @default true
    */
@@ -200,6 +212,71 @@ const parseDate = (dateString: string, format: string): Date | null => {
   return isNaN(date.getTime()) ? null : date;
 };
 
+// Custom isDateDisabled function that combines all constraints
+const isDateDisabledWithConstraints = (
+  date: Date,
+  minDate?: Date,
+  maxDate?: Date,
+  disabledDates?: Date[],
+  customIsDateDisabled?: (date: Date) => boolean,
+  disablePast?: boolean,
+  disableFuture?: boolean
+): boolean => {
+  // Check custom isDateDisabled function
+  if (customIsDateDisabled && customIsDateDisabled(date)) {
+    return true;
+  }
+  
+  // Check min date
+  if (minDate && date < minDate) {
+    return true;
+  }
+  
+  // Check max date
+  if (maxDate && date > maxDate) {
+    return true;
+  }
+  
+  // Check if date is in disabledDates array
+  if (disabledDates) {
+    for (const disabledDate of disabledDates) {
+      if (
+        date.getDate() === disabledDate.getDate() &&
+        date.getMonth() === disabledDate.getMonth() &&
+        date.getFullYear() === disabledDate.getFullYear()
+      ) {
+        return true;
+      }
+    }
+  }
+  
+  // Check disablePast - compare dates without time
+  if (disablePast) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(date);
+    dateToCheck.setHours(0, 0, 0, 0);
+    
+    if (dateToCheck < today) {
+      return true;
+    }
+  }
+  
+  // Check disableFuture - compare dates without time
+  if (disableFuture) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(date);
+    dateToCheck.setHours(0, 0, 0, 0);
+    
+    if (dateToCheck > today) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
 // Date Picker Component
 const DatePicker: React.FC<DatePickerProps> = ({
   value = null,
@@ -212,6 +289,8 @@ const DatePicker: React.FC<DatePickerProps> = ({
   maxDate,
   disabledDates = [],
   isDateDisabled,
+  disablePast = false,
+  disableFuture = false,
   clearable = true,
   error = false,
   errorMessage,
@@ -454,6 +533,19 @@ const DatePicker: React.FC<DatePickerProps> = ({
     'w-auto'
   ].join(' ');
   
+  // Create a wrapper for the isDateDisabled function that includes all constraints
+  const handleIsDateDisabled = (date: Date) => {
+    return isDateDisabledWithConstraints(
+      date, 
+      minDate, 
+      maxDate, 
+      disabledDates, 
+      isDateDisabled,
+      disablePast,
+      disableFuture
+    );
+  };
+  
   // Calendar rendering
   const calendarComponent = isOpen && mounted ? (
     <div 
@@ -474,7 +566,7 @@ const DatePicker: React.FC<DatePickerProps> = ({
         minDate={minDate}
         maxDate={maxDate}
         disabledDates={disabledDates}
-        isDateDisabled={isDateDisabled}
+        isDateDisabled={handleIsDateDisabled}
         closeOnSelect={closeOnSelect}
         initialMonth={value || initialMonth}
         locale={locale}

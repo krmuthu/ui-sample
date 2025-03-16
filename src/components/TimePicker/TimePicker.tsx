@@ -137,6 +137,24 @@ export interface TimePickerProps {
    * Callback for when the time selector closes
    */
   onClose?: () => void;
+
+  /**
+   * Whether to disable all times before the current time
+   * @default false
+   */
+  disablePast?: boolean;
+  
+  /**
+   * Whether to disable all times after the current time
+   * @default false
+   */
+  disableFuture?: boolean;
+  
+  /**
+   * Reference date for disablePast/disableFuture
+   * If not provided, the current date/time will be used
+   */
+  referenceDate?: Date;
 }
 
 // Helper functions for time manipulation
@@ -201,24 +219,54 @@ const isTimeDisabled = (
   hours: number,
   minutes: number,
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  referenceDate?: Date
 ): boolean => {
-  if (!minTime && !maxTime) return false;
-  
-  // Extract only the time part for comparison
+  // Create a date object for comparison (only time part matters)
   const timeValue = new Date();
   timeValue.setHours(hours, minutes, 0, 0);
   
+  // Check min time
   if (minTime) {
     const minTimeValue = new Date();
     minTimeValue.setHours(minTime.getHours(), minTime.getMinutes(), 0, 0);
     if (timeValue < minTimeValue) return true;
   }
   
+  // Check max time
   if (maxTime) {
     const maxTimeValue = new Date();
     maxTimeValue.setHours(maxTime.getHours(), maxTime.getMinutes(), 0, 0);
     if (timeValue > maxTimeValue) return true;
+  }
+  
+  // Check disablePast/disableFuture
+  if (disablePast || disableFuture) {
+    // Use reference date or current date
+    const now = referenceDate ? new Date(referenceDate) : new Date();
+    
+    // For comparison, set the date part to be the same, we only care about time
+    const compareDate = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+      now.getHours(),
+      now.getMinutes(),
+      0,
+      0
+    );
+    
+    // Check if time is in the past
+    if (disablePast && timeValue < compareDate) {
+      return true;
+    }
+    
+    // Check if time is in the future
+    if (disableFuture && timeValue > compareDate) {
+      return true;
+    }
   }
   
   return false;
@@ -228,7 +276,10 @@ const isTimeDisabled = (
 const generateHoursOptions = (
   format: '12h' | '24h',
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  referenceDate?: Date
 ): Array<{ value: number; label: string; disabled: boolean }> => {
   const result = [];
   const maxHours = format === '12h' ? 12 : 23;
@@ -238,14 +289,14 @@ const generateHoursOptions = (
     // For 12-hour format, we need to check both AM and PM possibilities
     if (format === '12h') {
       // Check AM
-      const amDisabled = isTimeDisabled(hour === 12 ? 0 : hour, 0, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 0 : hour, 30, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 0 : hour, 59, minTime, maxTime);
+      const amDisabled = isTimeDisabled(hour === 12 ? 0 : hour, 0, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                          isTimeDisabled(hour === 12 ? 0 : hour, 30, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                          isTimeDisabled(hour === 12 ? 0 : hour, 59, minTime, maxTime, disablePast, disableFuture, referenceDate);
       
       // Check PM
-      const pmDisabled = isTimeDisabled(hour === 12 ? 12 : hour + 12, 0, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 30, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 59, minTime, maxTime);
+      const pmDisabled = isTimeDisabled(hour === 12 ? 12 : hour + 12, 0, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 30, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 59, minTime, maxTime, disablePast, disableFuture, referenceDate);
       
       // Only disable if both AM and PM versions are disabled
       const disabled = amDisabled && pmDisabled;
@@ -257,9 +308,9 @@ const generateHoursOptions = (
       });
     } else {
       // For 24-hour format, check if all minutes in this hour are disabled
-      const disabled = isTimeDisabled(hour, 0, minTime, maxTime) && 
-                       isTimeDisabled(hour, 30, minTime, maxTime) && 
-                       isTimeDisabled(hour, 59, minTime, maxTime);
+      const disabled = isTimeDisabled(hour, 0, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                       isTimeDisabled(hour, 30, minTime, maxTime, disablePast, disableFuture, referenceDate) && 
+                       isTimeDisabled(hour, 59, minTime, maxTime, disablePast, disableFuture, referenceDate);
       
       result.push({
         value: hour,
@@ -278,7 +329,10 @@ const generateMinuteOptions = (
   selectedHour: number,
   period: 'AM' | 'PM',
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  referenceDate?: Date
 ): Array<{ value: number; label: string; disabled: boolean }> => {
   const result = [];
   
@@ -288,7 +342,7 @@ const generateMinuteOptions = (
   if (period === 'AM' && selectedHour === 12) hour24 = 0;
   
   for (let minute = 0; minute < 60; minute += step) {
-    const disabled = isTimeDisabled(hour24, minute, minTime, maxTime);
+    const disabled = isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, referenceDate);
     
     result.push({
       value: minute,
@@ -306,7 +360,10 @@ const findFirstEnabledMinute = (
   period: 'AM' | 'PM',
   minuteStep: number = 5,
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  referenceDate?: Date
 ): number => {
   // Convert to 24-hour format for calculations
   let hour24 = hour;
@@ -314,7 +371,7 @@ const findFirstEnabledMinute = (
   if (period === 'AM' && hour === 12) hour24 = 0;
   
   for (let minute = 0; minute < 60; minute += minuteStep) {
-    if (!isTimeDisabled(hour24, minute, minTime, maxTime)) {
+    if (!isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, referenceDate)) {
       return minute;
     }
   }
@@ -349,7 +406,10 @@ const TimePicker: React.FC<TimePickerProps> = ({
   startIcon,
   closeOnSelect = true,
   onOpen,
-  onClose
+  onClose,
+  disablePast = false,
+  disableFuture = false,
+  referenceDate
 }) => {
   // State for input and dropdown
   const [isOpen, setIsOpen] = useState(false);
@@ -375,13 +435,24 @@ const TimePicker: React.FC<TimePickerProps> = ({
   });
   
   // Generated options
-  const hoursOptions = generateHoursOptions(displayFormat, minTime, maxTime);
+  const hoursOptions = generateHoursOptions(
+    displayFormat, 
+    minTime, 
+    maxTime,
+    disablePast,
+    disableFuture,
+    referenceDate
+  );
+  
   const minutesOptions = generateMinuteOptions(
     minuteStep, 
     selectedHour, 
     selectedPeriod, 
     minTime, 
-    maxTime
+    maxTime,
+    disablePast,
+    disableFuture,
+    referenceDate
   );
   
   // Refs
@@ -503,8 +574,8 @@ const TimePicker: React.FC<TimePickerProps> = ({
       if (selectedPeriod === 'AM' && hourInFormat === 12) hour24 = 0;
     }
     
-    if (isTimeDisabled(hour24, minute, minTime, maxTime)) {
-      minute = findFirstEnabledMinute(hourInFormat, selectedPeriod, minuteStep, minTime, maxTime);
+    if (isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, referenceDate)) {
+      minute = findFirstEnabledMinute(hourInFormat, selectedPeriod, minuteStep, minTime, maxTime, disablePast, disableFuture, referenceDate);
     }
     
     // Update state with new values synchronously
@@ -572,8 +643,8 @@ const TimePicker: React.FC<TimePickerProps> = ({
     if (period === 'AM' && currentHour === 12) hour24 = 0;
     
     let minute = selectedMinute;
-    if (isTimeDisabled(hour24, minute, minTime, maxTime)) {
-      minute = findFirstEnabledMinute(currentHour, period, minuteStep, minTime, maxTime);
+    if (isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, referenceDate)) {
+      minute = findFirstEnabledMinute(currentHour, period, minuteStep, minTime, maxTime, disablePast, disableFuture, referenceDate);
       setSelectedMinute(minute);
     }
     

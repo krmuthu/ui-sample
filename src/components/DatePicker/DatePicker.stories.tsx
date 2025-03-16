@@ -76,6 +76,18 @@ const meta: Meta<typeof DatePicker> = {
       control: 'text',
       description: 'Locale for the date picker',
     },
+    disablePast: {
+      control: 'boolean',
+      description: 'Whether to disable past dates',
+    },
+    disableFuture: {
+      control: 'boolean',
+      description: 'Whether to disable future dates',
+    },
+    variant: {
+      control: { type: 'radio' },
+      options: ['primary', 'secondary', 'tertiary'],
+    },
   },
   parameters: {
     layout: 'centered',
@@ -422,6 +434,139 @@ export const DifferentLocales: Story = {
           locale="ja-JP"
           value={new Date(2023, 0, 15)}
         />
+      </div>
+    </div>
+  ),
+};
+
+// Date picker with min and max date constraints
+export const WithDateConstraints: Story = {
+  args: {
+    label: 'Select Date (within range)',
+    minDate: new Date(2023, 0, 1), // Jan 1, 2023
+    maxDate: new Date(2023, 11, 31), // Dec 31, 2023
+    helperText: 'Select a date in 2023',
+  },
+};
+
+// Date picker that disables past dates
+export const DisablePastDates: Story = {
+  args: {
+    label: 'Future Date Only',
+    disablePast: true,
+    helperText: 'Only future dates can be selected',
+  },
+};
+
+// Date picker that disables future dates
+export const DisableFutureDates: Story = {
+  args: {
+    label: 'Past Date Only',
+    disableFuture: true,
+    helperText: 'Only past dates can be selected',
+  },
+};
+
+// Date picker with error state
+export const WithError: Story = {
+  args: {
+    label: 'Select Date',
+    error: true,
+    errorMessage: 'Please select a valid date',
+  },
+};
+
+// Disabled date picker
+export const Disabled: Story = {
+  args: {
+    label: 'Select Date',
+    disabled: true,
+  },
+};
+
+// Date picker with custom icon
+export const WithIcon: Story = {
+  args: {
+    label: 'Select Date',
+    startIcon: (
+      <svg 
+        width="16" 
+        height="16" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+      </svg>
+    ),
+  },
+};
+
+// Date picker with full width
+export const FullWidth: Story = {
+  args: {
+    label: 'Select Date',
+    fullWidth: true,
+  },
+  parameters: {
+    layout: 'padded',
+  },
+};
+
+// Date picker with different variants
+export const Variants: Story = {
+  render: () => (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', width: '300px' }}>
+      <DatePicker label="Primary" variant="primary" />
+      <DatePicker label="Secondary" variant="secondary" />
+      <DatePicker label="Tertiary" variant="tertiary" />
+    </div>
+  ),
+};
+
+// Date picker with custom date format
+export const CustomFormat: Story = {
+  args: {
+    label: 'Select Date',
+    displayFormat: 'MM/dd/yyyy',
+    helperText: 'Format: MM/DD/YYYY',
+  },
+};
+
+// Appointment scheduling example
+export const AppointmentScheduler: Story = {
+  render: () => (
+    <div style={{ width: '300px' }}>
+      <h3 style={{ marginBottom: '16px', fontWeight: 'bold' }}>Schedule an Appointment</h3>
+      <p style={{ marginBottom: '16px', fontSize: '14px' }}>
+        Select a date for your appointment. Only future dates are available.
+      </p>
+      <DatePicker 
+        label="Appointment Date" 
+        disablePast={true}
+        fullWidth
+        helperText="Select a date for your appointment"
+      />
+      <div style={{ marginTop: '16px' }}>
+        <button 
+          style={{ 
+            padding: '8px 16px', 
+            backgroundColor: 'var(--btn-primary-bg)', 
+            color: 'var(--btn-primary-text)', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            width: '100%'
+          }}
+        >
+          Continue
+        </button>
       </div>
     </div>
   ),

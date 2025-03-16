@@ -74,6 +74,18 @@ export interface DateTimePickerProps {
   isDateDisabled?: (date: Date) => boolean;
   
   /**
+   * Whether to disable all dates before the current date
+   * @default false
+   */
+  disablePast?: boolean;
+  
+  /**
+   * Whether to disable all dates after the current date
+   * @default false
+   */
+  disableFuture?: boolean;
+  
+  /**
    * Minute step interval
    * @default 5
    */
@@ -288,6 +300,71 @@ const parseDateTime = (dateTimeString: string, dateFormat: string, timeFormat: '
   return date;
 };
 
+// Custom isDateDisabled function that combines all constraints
+const isDateDisabledWithConstraints = (
+  date: Date,
+  minDate?: Date,
+  maxDate?: Date,
+  disabledDates?: Date[],
+  customIsDateDisabled?: (date: Date) => boolean,
+  disablePast?: boolean,
+  disableFuture?: boolean
+): boolean => {
+  // Check custom isDateDisabled function
+  if (customIsDateDisabled && customIsDateDisabled(date)) {
+    return true;
+  }
+  
+  // Check min date
+  if (minDate && date < minDate) {
+    return true;
+  }
+  
+  // Check max date
+  if (maxDate && date > maxDate) {
+    return true;
+  }
+  
+  // Check if date is in disabledDates array
+  if (disabledDates) {
+    for (const disabledDate of disabledDates) {
+      if (
+        date.getDate() === disabledDate.getDate() &&
+        date.getMonth() === disabledDate.getMonth() &&
+        date.getFullYear() === disabledDate.getFullYear()
+      ) {
+        return true;
+      }
+    }
+  }
+  
+  // Check disablePast - compare dates without time
+  if (disablePast) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(date);
+    dateToCheck.setHours(0, 0, 0, 0);
+    
+    if (dateToCheck < today) {
+      return true;
+    }
+  }
+  
+  // Check disableFuture - compare dates without time
+  if (disableFuture) {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const dateToCheck = new Date(date);
+    dateToCheck.setHours(0, 0, 0, 0);
+    
+    if (dateToCheck > today) {
+      return true;
+    }
+  }
+  
+  return false;
+};
+
 // DateTimePicker Component
 const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value = null,
@@ -301,8 +378,10 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   maxDate,
   minTime,
   maxTime,
-  disabledDates = [],
+  disabledDates,
   isDateDisabled,
+  disablePast = false,
+  disableFuture = false,
   minuteStep = 5,
   clearable = true,
   error = false,
@@ -346,14 +425,20 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
   const hoursOptions = generateHoursOptions(
     timeDisplayFormat, 
     minTime, 
-    maxTime
+    maxTime,
+    disablePast,
+    disableFuture,
+    selectedDate
   );
   const minutesOptions = generateMinuteOptions(
     minuteStep, 
     selectedHour, 
     selectedPeriod, 
     minTime, 
-    maxTime
+    maxTime,
+    disablePast,
+    disableFuture,
+    selectedDate
   );
   
   // Refs
@@ -516,8 +601,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
       if (selectedPeriod === 'AM' && hourInFormat === 12) hour24 = 0;
     }
     
-    if (isTimeDisabled(hour24, minute, minTime, maxTime)) {
-      minute = findFirstEnabledMinute(hourInFormat, selectedPeriod, minuteStep, minTime, maxTime);
+    if (isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, selectedDate)) {
+      minute = findFirstEnabledMinute(hourInFormat, selectedPeriod, minuteStep, minTime, maxTime, disablePast, disableFuture, selectedDate);
     }
     
     // Update state with new values
@@ -548,8 +633,8 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     if (period === 'AM' && currentHour === 12) hour24 = 0;
     
     let minute = selectedMinute;
-    if (isTimeDisabled(hour24, minute, minTime, maxTime)) {
-      minute = findFirstEnabledMinute(currentHour, period, minuteStep, minTime, maxTime);
+    if (isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, selectedDate)) {
+      minute = findFirstEnabledMinute(currentHour, period, minuteStep, minTime, maxTime, disablePast, disableFuture, selectedDate);
       setSelectedMinute(minute);
     }
     
@@ -672,6 +757,19 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
     'w-auto'
   ].join(' ');
   
+  // Create a wrapper for the isDateDisabled function that includes all constraints
+  const handleIsDateDisabled = (date: Date) => {
+    return isDateDisabledWithConstraints(
+      date, 
+      minDate, 
+      maxDate, 
+      disabledDates, 
+      isDateDisabled,
+      disablePast,
+      disableFuture
+    );
+  };
+  
   // Calendar and TimeList rendering
   const dropdownComponent = isOpen && mounted ? (
     <div 
@@ -697,7 +795,7 @@ const DateTimePicker: React.FC<DateTimePickerProps> = ({
               minDate={minDate}
               maxDate={maxDate}
               disabledDates={disabledDates}
-              isDateDisabled={isDateDisabled}
+              isDateDisabled={handleIsDateDisabled}
               closeOnSelect={false}
               initialMonth={selectedDate ? selectedDate : initialMonth}
               locale={locale}
@@ -873,24 +971,44 @@ const isTimeDisabled = (
   hours: number,
   minutes: number,
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  selectedDate?: Date | null
 ): boolean => {
-  if (!minTime && !maxTime) return false;
-  
-  // Extract only the time part for comparison
-  const timeValue = new Date();
-  timeValue.setHours(hours, minutes, 0, 0);
-  
-  if (minTime) {
-    const minTimeValue = new Date();
-    minTimeValue.setHours(minTime.getHours(), minTime.getMinutes(), 0, 0);
-    if (timeValue < minTimeValue) return true;
+  // Check min/max time constraints
+  if (minTime || maxTime) {
+    // Extract only the time part for comparison
+    const timeValue = new Date();
+    timeValue.setHours(hours, minutes, 0, 0);
+    
+    if (minTime) {
+      const minTimeValue = new Date();
+      minTimeValue.setHours(minTime.getHours(), minTime.getMinutes(), 0, 0);
+      if (timeValue < minTimeValue) return true;
+    }
+    
+    if (maxTime) {
+      const maxTimeValue = new Date();
+      maxTimeValue.setHours(maxTime.getHours(), maxTime.getMinutes(), 0, 0);
+      if (timeValue > maxTimeValue) return true;
+    }
   }
   
-  if (maxTime) {
-    const maxTimeValue = new Date();
-    maxTimeValue.setHours(maxTime.getHours(), maxTime.getMinutes(), 0, 0);
-    if (timeValue > maxTimeValue) return true;
+  // Check disablePast/disableFuture if we have a selected date
+  if (selectedDate && (disablePast || disableFuture)) {
+    const now = new Date();
+    const dateToCheck = new Date(selectedDate);
+    dateToCheck.setHours(hours, minutes, 0, 0);
+    
+    // Compare with current date and time
+    if (disablePast && dateToCheck < now) {
+      return true;
+    }
+    
+    if (disableFuture && dateToCheck > now) {
+      return true;
+    }
   }
   
   return false;
@@ -900,45 +1018,32 @@ const isTimeDisabled = (
 const generateHoursOptions = (
   format: '12h' | '24h',
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  selectedDate?: Date | null
 ): Array<TimeOption> => {
   const result: TimeOption[] = [];
   const maxHours = format === '12h' ? 12 : 23;
   const minHours = format === '12h' ? 1 : 0;
   
   for (let hour = minHours; hour <= maxHours; hour++) {
-    // For 12-hour format, we need to check both AM and PM possibilities
-    if (format === '12h') {
-      // Check AM
-      const amDisabled = isTimeDisabled(hour === 12 ? 0 : hour, 0, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 0 : hour, 30, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 0 : hour, 59, minTime, maxTime);
-      
-      // Check PM
-      const pmDisabled = isTimeDisabled(hour === 12 ? 12 : hour + 12, 0, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 30, minTime, maxTime) && 
-                          isTimeDisabled(hour === 12 ? 12 : hour + 12, 59, minTime, maxTime);
-      
-      // Only disable if both AM and PM versions are disabled
-      const disabled = amDisabled && pmDisabled;
-      
-      result.push({
-        value: hour,
-        label: hour.toString().padStart(2, '0'),
-        disabled
-      });
-    } else {
-      // For 24-hour format, check if all minutes in this hour are disabled
-      const disabled = isTimeDisabled(hour, 0, minTime, maxTime) && 
-                       isTimeDisabled(hour, 30, minTime, maxTime) && 
-                       isTimeDisabled(hour, 59, minTime, maxTime);
-      
-      result.push({
-        value: hour,
-        label: hour.toString().padStart(2, '0'),
-        disabled
-      });
-    }
+    const hourDisabled = format === '12h'
+      ? isTimeDisabled(hour === 12 ? 0 : hour, 0, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour === 12 ? 0 : hour, 30, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour === 12 ? 0 : hour, 59, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour === 12 ? 12 : hour + 12, 0, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour === 12 ? 12 : hour + 12, 30, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour === 12 ? 12 : hour + 12, 59, minTime, maxTime, disablePast, disableFuture, selectedDate)
+      : isTimeDisabled(hour, 0, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour, 30, minTime, maxTime, disablePast, disableFuture, selectedDate) && 
+        isTimeDisabled(hour, 59, minTime, maxTime, disablePast, disableFuture, selectedDate);
+    
+    result.push({
+      value: hour,
+      label: hour.toString().padStart(2, '0'),
+      disabled: hourDisabled
+    });
   }
   
   return result;
@@ -950,7 +1055,10 @@ const generateMinuteOptions = (
   selectedHour: number,
   period: 'AM' | 'PM',
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  selectedDate?: Date | null
 ): Array<TimeOption> => {
   const result: TimeOption[] = [];
   
@@ -960,7 +1068,7 @@ const generateMinuteOptions = (
   if (period === 'AM' && selectedHour === 12) hour24 = 0;
   
   for (let minute = 0; minute < 60; minute += step) {
-    const disabled = isTimeDisabled(hour24, minute, minTime, maxTime);
+    const disabled = isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, selectedDate);
     
     result.push({
       value: minute,
@@ -978,7 +1086,10 @@ const findFirstEnabledMinute = (
   period: 'AM' | 'PM',
   minuteStep: number = 5,
   minTime?: Date,
-  maxTime?: Date
+  maxTime?: Date,
+  disablePast?: boolean,
+  disableFuture?: boolean,
+  selectedDate?: Date | null
 ): number => {
   // Convert to 24-hour format for calculations
   let hour24 = hour;
@@ -986,7 +1097,7 @@ const findFirstEnabledMinute = (
   if (period === 'AM' && hour === 12) hour24 = 0;
   
   for (let minute = 0; minute < 60; minute += minuteStep) {
-    if (!isTimeDisabled(hour24, minute, minTime, maxTime)) {
+    if (!isTimeDisabled(hour24, minute, minTime, maxTime, disablePast, disableFuture, selectedDate)) {
       return minute;
     }
   }

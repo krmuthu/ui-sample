@@ -90,13 +90,17 @@ const meta: Meta<typeof DateTimePicker> = {
       control: 'boolean',
       description: 'Whether the date time picker is required',
     },
-    closeOnSelect: {
-      control: 'boolean',
-      description: 'Whether to close the dropdown when a date and time is selected',
-    },
     locale: {
       control: 'text',
       description: 'Locale for the date picker',
+    },
+    disablePast: {
+      control: 'boolean',
+      description: 'Whether to disable past dates',
+    },
+    disableFuture: {
+      control: 'boolean',
+      description: 'Whether to disable future dates',
     },
   },
   parameters: {
@@ -117,7 +121,6 @@ export const Playground: Story = {
     size: 'medium',
     variant: 'primary',
     clearable: true,
-    closeOnSelect: true,
     fullWidth: false,
     required: false,
     disabled: false,
@@ -557,4 +560,130 @@ export const CombinedSelection: Story = {
       </div>
     );
   },
+};
+
+// Date time picker with min and max date constraints
+export const WithDateConstraints: Story = {
+  args: {
+    label: 'Select Date and Time (within range)',
+    minDate: new Date(2023, 0, 1), // Jan 1, 2023
+    maxDate: new Date(2023, 11, 31), // Dec 31, 2023
+    helperText: 'Select a date and time in 2023',
+  },
+};
+
+// Date time picker with min and max time constraints
+export const WithTimeConstraints: Story = {
+  args: {
+    label: 'Select Date and Time (business hours)',
+    minTime: new Date(2023, 0, 1, 9, 0), // 9:00 AM
+    maxTime: new Date(2023, 0, 1, 17, 0), // 5:00 PM
+    helperText: 'Select a time between 9:00 AM and 5:00 PM',
+  },
+};
+
+// Date time picker that disables past dates and times
+export const DisablePastDateTime: Story = {
+  args: {
+    label: 'Future Date and Time Only',
+    disablePast: true,
+    helperText: 'Only future dates and times can be selected',
+  },
+};
+
+// Date time picker that disables future dates and times
+export const DisableFutureDateTime: Story = {
+  args: {
+    label: 'Past Date and Time Only',
+    disableFuture: true,
+    helperText: 'Only past dates and times can be selected',
+  },
+};
+
+// Date time picker with 24-hour time format
+export const Format24h: Story = {
+  args: {
+    label: 'Select Date and Time (24h)',
+    timeDisplayFormat: '24h',
+  },
+};
+
+// Date time picker with error state
+export const WithError: Story = {
+  args: {
+    label: 'Select Date and Time',
+    error: true,
+    errorMessage: 'Please select a valid date and time',
+  },
+};
+
+// Disabled date time picker
+export const Disabled: Story = {
+  args: {
+    label: 'Select Date and Time',
+    disabled: true,
+  },
+};
+
+// Date time picker with custom icon
+export const WithIcon: Story = {
+  args: {
+    label: 'Select Date and Time',
+    startIcon: (
+      <svg 
+        width="16" 
+        height="16" 
+        viewBox="0 0 24 24" 
+        fill="none" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+        <line x1="16" y1="2" x2="16" y2="6"></line>
+        <line x1="8" y1="2" x2="8" y2="6"></line>
+        <line x1="3" y1="10" x2="21" y2="10"></line>
+        <circle cx="12" cy="15" r="4"></circle>
+        <line x1="12" y1="15" x2="12" y2="12"></line>
+        <line x1="12" y1="15" x2="14" y2="15"></line>
+      </svg>
+    ),
+  },
+};
+
+// Meeting scheduling example
+export const MeetingScheduler: Story = {
+  render: () => (
+    <div style={{ width: '300px' }}>
+      <h3 style={{ marginBottom: '16px', fontWeight: 'bold' }}>Schedule a Meeting</h3>
+      <p style={{ marginBottom: '16px', fontSize: '14px' }}>
+        Select a date and time for your meeting. Only future dates and business hours are available.
+      </p>
+      <DateTimePicker 
+        label="Meeting Date and Time" 
+        disablePast={true}
+        minTime={new Date(2023, 0, 1, 9, 0)} // 9:00 AM
+        maxTime={new Date(2023, 0, 1, 17, 0)} // 5:00 PM
+        minuteStep={15}
+        fullWidth
+        helperText="Business hours: 9:00 AM - 5:00 PM"
+      />
+      <div style={{ marginTop: '16px' }}>
+        <button 
+          style={{ 
+            padding: '8px 16px', 
+            backgroundColor: 'var(--btn-primary-bg)', 
+            color: 'var(--btn-primary-text)', 
+            border: 'none', 
+            borderRadius: '4px', 
+            cursor: 'pointer',
+            width: '100%'
+          }}
+        >
+          Schedule Meeting
+        </button>
+      </div>
+    </div>
+  ),
 }; 
