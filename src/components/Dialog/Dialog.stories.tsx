@@ -102,7 +102,7 @@ export const Sizes: Story = {
           size="medium"
         >
           <p>This is a medium dialog with a reasonable amount of content.</p>
-          <p>It's suitable for most use cases and forms that don't require too much space.</p>
+          <p>It&apos;s suitable for most use cases and forms that don&apos;t require too much space.</p>
         </Dialog>
         
         <Dialog
@@ -112,7 +112,7 @@ export const Sizes: Story = {
           size="large"
         >
           <p>This is a large dialog intended for displaying lots of content.</p>
-          <p>It's perfect for complex forms, detailed information, or any content that needs more space.</p>
+          <p>It&apos;s perfect for complex forms, detailed information, or any content that needs more space.</p>
           <p>You might use this for things like:</p>
           <ul className="list-disc pl-5 mt-2">
             <li>Detailed user profiles</li>

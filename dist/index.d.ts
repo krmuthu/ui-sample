@@ -10,6 +10,8 @@ export { default as FormLabel } from './components/FormLabel/FormLabel';
 export { default as Radio } from './components/Radio/Radio';
 export { default as Checkbox } from './components/Checkbox/Checkbox';
 export { default as Switch } from './components/Switch/Switch';
+export { default as DatePicker } from './components/DatePicker/DatePicker';
+export { default as Dialog } from './components/Dialog/Dialog';
 export { default as version } from './utils/version';
 export { getVersion, getVersionInfo, getFormattedVersion } from './utils/version';
 export { default as theme, getThemeColor } from './utils/theme';

@@ -14,7 +14,8 @@ import {
   Checkbox,
   Switch,
   FormLabel,
-  Dialog
+  Dialog,
+  DatePicker
 } from 'clipper-ui';
 import ThemeTest from './ThemeTest';
 
@@ -534,6 +535,14 @@ function App() {
             <DialogExample />
           </div>
         </section>
+
+        {/* DatePicker section */}
+        <section className="bg-white p-6 rounded-lg shadow-md dark:bg-gray-800 dark:text-white col-span-1 md:col-span-2 mb-8">
+          <h2 className="text-xl font-semibold mb-4">DatePicker</h2>
+          <div className="flex flex-wrap gap-4">
+            <DatePickerExample />
+          </div>
+        </section>
       </div>
 
       <footer className="mt-8 pt-6 border-t border-neutral-200 text-neutral-600 dark:text-neutral-400 dark:border-neutral-700">
@@ -603,7 +612,7 @@ function DialogExample() {
         size="large"
       >
         <div className="space-y-4">
-          <p>This dialog demonstrates a larger size option that's perfect for displaying more content.</p>
+          <p>This dialog demonstrates a larger size option that&apos;s perfect for displaying more content.</p>
           
           <h3 className="text-lg font-medium">Key Features</h3>
           <ul className="list-disc pl-5 space-y-2">
@@ -628,6 +637,109 @@ function DialogExample() {
         </div>
       </Dialog>
     </>
+  );
+}
+
+// DatePicker Example Component
+function DatePickerExample() {
+  const [selectedDate, setSelectedDate] = useState(null);
+  const [dateRange, setDateRange] = useState({
+    startDate: null,
+    endDate: null
+  });
+  
+  // Create date restrictions
+  const today = new Date();
+  const oneMonthAgo = new Date(today);
+  oneMonthAgo.setMonth(today.getMonth() - 1);
+  
+  const oneMonthAhead = new Date(today);
+  oneMonthAhead.setMonth(today.getMonth() + 1);
+  
+  // Handle date selection with validation
+  const handleDateChange = (date) => {
+    setSelectedDate(date);
+  };
+  
+  // Handle start date change
+  const handleStartDateChange = (date) => {
+    setDateRange(prev => ({...prev, startDate: date}));
+  };
+  
+  // Handle end date change
+  const handleEndDateChange = (date) => {
+    setDateRange(prev => ({...prev, endDate: date}));
+  };
+  
+  return (
+    <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-3">Basic Date Picker</h3>
+          <DatePicker
+            label="Select a date"
+            value={selectedDate}
+            onChange={handleDateChange}
+            helperText={selectedDate ? `You selected: ${selectedDate.toLocaleDateString()}` : "Click to select a date"}
+          />
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-medium mb-3">Date Picker with Restrictions</h3>
+          <DatePicker
+            label="Select within range"
+            minDate={oneMonthAgo}
+            maxDate={oneMonthAhead}
+            helperText={`Select a date between ${oneMonthAgo.toLocaleDateString()} and ${oneMonthAhead.toLocaleDateString()}`}
+          />
+        </div>
+      </div>
+      
+      <div className="space-y-6">
+        <div>
+          <h3 className="text-lg font-medium mb-3">Date Range Example</h3>
+          <div className="space-y-4">
+            <DatePicker
+              label="Start Date"
+              value={dateRange.startDate}
+              onChange={handleStartDateChange}
+              maxDate={dateRange.endDate}
+              helperText="Select the start date"
+            />
+            
+            <DatePicker
+              label="End Date"
+              value={dateRange.endDate}
+              onChange={handleEndDateChange}
+              minDate={dateRange.startDate}
+              helperText="Select the end date"
+              error={dateRange.startDate && dateRange.endDate && dateRange.endDate < dateRange.startDate}
+              errorMessage="End date must be after start date"
+            />
+          </div>
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-medium mb-3">Different Sizes</h3>
+          <div className="space-y-4">
+            <DatePicker
+              label="Small Size"
+              size="small"
+            />
+            
+            <DatePicker
+              label="Medium Size (Default)"
+              size="medium"
+            />
+            
+            <DatePicker
+              label="Large Size"
+              size="large"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
