@@ -38,7 +38,7 @@ export interface ContainerProps {
   /**
    * Additional props to be spread to the container element
    */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const Container: React.FC<ContainerProps> = ({
@@ -127,7 +127,7 @@ export interface RowProps {
   /**
    * Additional props to be spread to the row element
    */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const Row: React.FC<RowProps> = ({
@@ -255,7 +255,7 @@ export interface ColProps {
   /**
    * Additional props to be spread to the column element
    */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const Col: React.FC<ColProps> = ({
@@ -352,6 +352,27 @@ export interface GridProps {
   gap?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12;
   
   /**
+   * Auto-layout mode to create responsive grid layouts
+   * - "none": Fixed number of columns specified by the columns prop
+   * - "auto-fill": Fill the row with as many columns as possible based on minColumnWidth
+   * - "auto-fit": Same as auto-fill but expands columns to fill any remaining space
+   * @default "none"
+   */
+  autoLayout?: 'none' | 'auto-fill' | 'auto-fit';
+  
+  /**
+   * Minimum width of each column when using auto-layout
+   * @default "250px"
+   */
+  minColumnWidth?: string;
+  
+  /**
+   * Maximum width of each column when using auto-layout
+   * @default "1fr"
+   */
+  maxColumnWidth?: string;
+  
+  /**
    * Additional CSS class name for the grid
    */
   className?: string;
@@ -364,15 +385,18 @@ export interface GridProps {
   /**
    * Additional props to be spread to the grid element
    */
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const Grid: React.FC<GridProps> = ({
   children,
   columns = 12,
   gap = 4,
+  autoLayout = 'none',
+  minColumnWidth = '250px',
+  maxColumnWidth = '1fr',
   className = '',
-  style,
+  style = {},
   ...rest
 }) => {
   const gapMap = {
@@ -388,15 +412,30 @@ export const Grid: React.FC<GridProps> = ({
     12: 'gap-12'
   };
   
+  // Create appropriate grid template columns based on the autoLayout prop
+  let gridTemplateColumns = '';
+  if (autoLayout === 'auto-fill') {
+    gridTemplateColumns = `repeat(auto-fill, minmax(${minColumnWidth}, ${maxColumnWidth}))`;
+  } else if (autoLayout === 'auto-fit') {
+    gridTemplateColumns = `repeat(auto-fit, minmax(${minColumnWidth}, ${maxColumnWidth}))`;
+  }
+  
+  // Merge existing style with grid-template-columns when using auto-layout
+  const gridStyle = {
+    ...style,
+    ...(autoLayout !== 'none' ? { gridTemplateColumns } : {})
+  };
+  
   const gridClasses = [
     'grid',
-    `grid-cols-${columns}`,
+    // Only use grid-cols-{n} when not using auto-layout
+    autoLayout === 'none' ? `grid-cols-${columns}` : '',
     gapMap[gap],
     className
   ].filter(Boolean).join(' ');
   
   return (
-    <div className={gridClasses} style={style} {...rest}>
+    <div className={gridClasses} style={gridStyle} {...rest}>
       {children}
     </div>
   );

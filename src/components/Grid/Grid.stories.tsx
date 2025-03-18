@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StoryObj, Meta } from '@storybook/react';
 import { Container, Row, Col, Grid } from './Grid';
 
@@ -567,4 +567,411 @@ export const GridAsContainer: Story = {
       </Container>
     </div>
   ),
+};
+
+// Add new stories for auto-layout features
+
+export const AutoLayoutGrid: Story = {
+  render: () => (
+    <Container>
+      <h2 className="text-lg font-medium mb-4">Grid with Auto-Layout</h2>
+      <p className="mb-4 text-sm text-gray-600">
+        Auto-layout grids automatically adjust the number of columns based on available space.
+        Resize the browser window to see how the layout responds.
+      </p>
+      
+      <p className="mb-2 text-sm text-gray-600 font-medium">Auto-Fit Layout</p>
+      <p className="mb-2 text-sm text-gray-500">
+        Creates responsive columns that expand to fill available space
+      </p>
+      <Grid 
+        autoLayout="auto-fit"
+        minColumnWidth="150px"
+        gap={4}
+        className="mb-8"
+      >
+        {Array.from({ length: 5 }, (_, i) => (
+          <Box key={i}>Item {i + 1}</Box>
+        ))}
+      </Grid>
+      
+      <p className="mb-2 text-sm text-gray-600 font-medium">Auto-Fill Layout</p>
+      <p className="mb-2 text-sm text-gray-500">
+        Creates as many columns as can fit, preserving empty tracks
+      </p>
+      <Grid 
+        autoLayout="auto-fill"
+        minColumnWidth="150px"
+        gap={4}
+        className="mb-8"
+      >
+        {Array.from({ length: 5 }, (_, i) => (
+          <Box key={i} color="green">Item {i + 1}</Box>
+        ))}
+      </Grid>
+      
+      <p className="mb-2 text-sm text-gray-600 font-medium">Auto-Fit with Constrained Max Column Width</p>
+      <p className="mb-2 text-sm text-gray-500">
+        Columns have a maximum width of 200px, creating more columns as space allows
+      </p>
+      <Grid 
+        autoLayout="auto-fit"
+        minColumnWidth="150px"
+        maxColumnWidth="200px"
+        gap={4}
+        className="mb-8"
+      >
+        {Array.from({ length: 8 }, (_, i) => (
+          <Box key={i} color="purple">Item {i + 1}</Box>
+        ))}
+      </Grid>
+    </Container>
+  ),
+};
+
+export const AutoLayoutComparison: Story = {
+  render: () => (
+    <Container>
+      <h2 className="text-lg font-medium mb-4">Auto-Fit vs Auto-Fill Comparison</h2>
+      <p className="mb-4 text-sm text-gray-600">
+        This example shows the difference between auto-fit and auto-fill with the same number of items.
+        Resize the browser window to see how they behave differently.
+      </p>
+      
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+        <div>
+          <p className="mb-2 text-sm font-medium">Auto-Fit (3 items)</p>
+          <p className="mb-2 text-xs text-gray-500">
+            Collapses empty tracks and stretches items to fill the available space
+          </p>
+          <div className="border border-gray-300 p-4 rounded bg-gray-50">
+            <Grid 
+              autoLayout="auto-fit"
+              minColumnWidth="100px"
+              gap={4}
+            >
+              {Array.from({ length: 3 }, (_, i) => (
+                <Box key={i}>Item {i + 1}</Box>
+              ))}
+            </Grid>
+          </div>
+        </div>
+        
+        <div>
+          <p className="mb-2 text-sm font-medium">Auto-Fill (3 items)</p>
+          <p className="mb-2 text-xs text-gray-500">
+            Preserves empty tracks, maintaining consistent column width
+          </p>
+          <div className="border border-gray-300 p-4 rounded bg-gray-50">
+            <Grid 
+              autoLayout="auto-fill"
+              minColumnWidth="100px"
+              gap={4}
+            >
+              {Array.from({ length: 3 }, (_, i) => (
+                <Box key={i} color="green">Item {i + 1}</Box>
+              ))}
+            </Grid>
+          </div>
+        </div>
+      </div>
+      
+      <h3 className="text-md font-medium mb-2">With Many Items</h3>
+      <div className="grid grid-cols-1 gap-8 mb-6">
+        <div>
+          <p className="mb-2 text-sm font-medium">Auto-Fit (12 items)</p>
+          <div className="border border-gray-300 p-4 rounded bg-gray-50">
+            <Grid 
+              autoLayout="auto-fit"
+              minColumnWidth="120px"
+              gap={4}
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <Box key={i}>Item {i + 1}</Box>
+              ))}
+            </Grid>
+          </div>
+        </div>
+        
+        <div>
+          <p className="mb-2 text-sm font-medium">Auto-Fill (12 items)</p>
+          <div className="border border-gray-300 p-4 rounded bg-gray-50">
+            <Grid 
+              autoLayout="auto-fill"
+              minColumnWidth="120px"
+              gap={4}
+            >
+              {Array.from({ length: 12 }, (_, i) => (
+                <Box key={i} color="green">Item {i + 1}</Box>
+              ))}
+            </Grid>
+          </div>
+        </div>
+      </div>
+    </Container>
+  ),
+};
+
+export const ResponsiveCardLayout: Story = {
+  render: () => (
+    <Container>
+      <h2 className="text-lg font-medium mb-4">Responsive Card Layout</h2>
+      <p className="mb-4 text-sm text-gray-600">
+        A practical example of using auto-layout for a responsive card grid.
+        Cards will automatically adjust based on available space.
+      </p>
+      
+      <Grid 
+        autoLayout="auto-fit"
+        minColumnWidth="240px"
+        gap={6}
+      >
+        {Array.from({ length: 6 }, (_, i) => (
+          <div key={i} className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className={`h-40 bg-${i % 2 === 0 ? 'blue' : 'purple'}-200 flex items-center justify-center`}>
+              <span className="text-lg font-medium">Image {i + 1}</span>
+            </div>
+            <div className="p-4">
+              <h3 className="font-medium text-lg mb-2">Card Title {i + 1}</h3>
+              <p className="text-gray-600 text-sm">
+                This is a card description. It demonstrates how cards can automatically
+                adjust to fill the available space using auto-layout Grid.
+              </p>
+              <button className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 text-sm">
+                View Details
+              </button>
+            </div>
+          </div>
+        ))}
+      </Grid>
+    </Container>
+  ),
+};
+
+export const InteractiveAutoLayout: Story = {
+  render: () => {
+    // Use useState inside the render function for interactive controls
+    const [autoLayout, setAutoLayout] = useState<'none' | 'auto-fill' | 'auto-fit'>('auto-fit');
+    const [minColumnWidth, setMinColumnWidth] = useState('180px');
+    const [maxColumnWidth, setMaxColumnWidth] = useState('1fr');
+    const [itemCount, setItemCount] = useState(8);
+    const [gap, setGap] = useState<0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12>(4);
+    
+    // Generate items based on the selected count
+    const items = Array.from({ length: itemCount }, (_, i) => i + 1);
+    
+    return (
+      <Container>
+        <h2 className="text-lg font-medium mb-4">Interactive Auto-Layout Demo</h2>
+        <p className="mb-4 text-sm text-gray-600">
+          Experiment with different auto-layout settings to see how they affect the grid.
+        </p>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div>
+            <label className="block mb-2 text-sm font-medium">Layout Mode</label>
+            <select
+              value={autoLayout}
+              onChange={(e) => setAutoLayout(e.target.value as 'none' | 'auto-fill' | 'auto-fit')}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="none">None (Fixed Grid)</option>
+              <option value="auto-fill">Auto Fill</option>
+              <option value="auto-fit">Auto Fit</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block mb-2 text-sm font-medium">Min Column Width</label>
+            <input
+              type="text"
+              value={minColumnWidth}
+              onChange={(e) => setMinColumnWidth(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded"
+              placeholder="e.g., 150px, 10rem, 20%"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 text-sm font-medium">Max Column Width</label>
+            <input
+              type="text"
+              value={maxColumnWidth}
+              onChange={(e) => setMaxColumnWidth(e.target.value)}
+              className="w-full p-2 border border-gray-300 rounded"
+              placeholder="e.g., 1fr, 300px"
+            />
+          </div>
+          
+          <div>
+            <label className="block mb-2 text-sm font-medium">Gap Size</label>
+            <select
+              value={gap}
+              onChange={(e) => setGap(Number(e.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6 | 8 | 10 | 12)}
+              className="w-full p-2 border border-gray-300 rounded"
+            >
+              <option value="0">0 - None</option>
+              <option value="1">1 - 0.25rem (4px)</option>
+              <option value="2">2 - 0.5rem (8px)</option>
+              <option value="3">3 - 0.75rem (12px)</option>
+              <option value="4">4 - 1rem (16px)</option>
+              <option value="5">5 - 1.25rem (20px)</option>
+              <option value="6">6 - 1.5rem (24px)</option>
+              <option value="8">8 - 2rem (32px)</option>
+              <option value="10">10 - 2.5rem (40px)</option>
+              <option value="12">12 - 3rem (48px)</option>
+            </select>
+          </div>
+          
+          <div>
+            <label className="block mb-2 text-sm font-medium">Number of Items</label>
+            <input
+              type="range"
+              min="1"
+              max="20"
+              value={itemCount}
+              onChange={(e) => setItemCount(parseInt(e.target.value))}
+              className="w-full"
+            />
+            <span className="text-sm text-gray-600">{itemCount} items</span>
+          </div>
+        </div>
+        
+        <div className="bg-gray-50 p-4 border border-gray-300 rounded mb-6">
+          <p className="mb-2 text-sm font-medium">Current Configuration:</p>
+          <pre className="text-xs bg-gray-100 p-2 rounded overflow-x-auto">
+{`<Grid
+  autoLayout="${autoLayout}"
+  minColumnWidth="${minColumnWidth}"
+  maxColumnWidth="${maxColumnWidth}"
+  gap={${gap}}
+>
+  {/* ${itemCount} items */}
+</Grid>`}
+          </pre>
+        </div>
+        
+        <div className="border border-gray-300 p-4 rounded bg-white">
+          <p className="mb-2 text-sm font-medium">Result:</p>
+          <Grid 
+            autoLayout={autoLayout}
+            minColumnWidth={minColumnWidth}
+            maxColumnWidth={maxColumnWidth}
+            gap={gap}
+          >
+            {items.map((item) => (
+              <Box key={item} color={item % 3 === 0 ? 'purple' : item % 2 === 0 ? 'green' : 'blue'}>
+                Item {item}
+              </Box>
+            ))}
+          </Grid>
+        </div>
+      </Container>
+    );
+  },
+};
+
+export const ProductGallery: Story = {
+  render: () => {
+    // Sample product data
+    const products = [
+      { id: 1, name: 'Wireless Headphones', price: '$129.99', category: 'Audio', featured: true },
+      { id: 2, name: 'Smart Watch', price: '$199.99', category: 'Wearables', featured: false },
+      { id: 3, name: 'Bluetooth Speaker', price: '$89.99', category: 'Audio', featured: false },
+      { id: 4, name: 'Laptop Backpack', price: '$59.99', category: 'Accessories', featured: false },
+      { id: 5, name: 'Mechanical Keyboard', price: '$149.99', category: 'Computing', featured: true },
+      { id: 6, name: 'Wireless Mouse', price: '$49.99', category: 'Computing', featured: false },
+      { id: 7, name: 'USB-C Hub', price: '$39.99', category: 'Accessories', featured: false },
+      { id: 8, name: 'Smartphone', price: '$899.99', category: 'Mobile', featured: true },
+    ];
+    
+    return (
+      <Container>
+        <h2 className="text-xl font-bold mb-2">Product Gallery</h2>
+        <p className="mb-6 text-sm text-gray-600">
+          A responsive product gallery that uses auto-layout to create a visually balanced grid.
+          Featured products take up more space in the grid.
+        </p>
+        
+        <Grid 
+          autoLayout="auto-fit"
+          minColumnWidth="250px"
+          gap={6}
+          className="mb-10"
+        >
+          {products.map((product) => (
+            <div 
+              key={product.id} 
+              className={`bg-white rounded-lg shadow-md overflow-hidden ${
+                product.featured ? 'md:col-span-2 md:row-span-2' : ''
+              }`}
+              style={product.featured ? { gridRow: 'span 2', gridColumn: 'span 2' } : {}}
+            >
+              <div 
+                className={`${
+                  product.featured ? 'h-64' : 'h-48'
+                } bg-${
+                  product.category === 'Audio' ? 'blue' : 
+                  product.category === 'Computing' ? 'purple' : 
+                  product.category === 'Mobile' ? 'teal' :
+                  product.category === 'Wearables' ? 'amber' : 'gray'
+                }-100 flex items-center justify-center border-b`}
+              >
+                <span className="text-lg font-medium">{product.name}</span>
+              </div>
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-lg">{product.name}</h3>
+                  <span className="text-green-700 font-bold">{product.price}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="px-2 py-1 bg-gray-200 text-gray-700 rounded text-xs">
+                    {product.category}
+                  </span>
+                  {product.featured && (
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs">
+                      Featured
+                    </span>
+                  )}
+                </div>
+                <div className="mt-4">
+                  <button className="w-full py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm font-medium transition-colors">
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </Grid>
+        
+        <h3 className="text-lg font-semibold mb-2">Implementation Notes</h3>
+        <p className="text-sm mb-2">
+          This product gallery showcases how to combine auto-layout with manual grid positioning:
+        </p>
+        <ul className="list-disc list-inside text-sm text-gray-700 mb-4 ml-4">
+          <li>Uses <code>autoLayout="auto-fit"</code> for the base responsive grid</li>
+          <li>Featured products use <code>gridRow: 'span 2', gridColumn: 'span 2'</code> for larger sizing</li>
+          <li>Grid automatically adjusts other items around the featured products</li>
+          <li>The layout remains responsive at all screen sizes</li>
+        </ul>
+        
+        <pre className="text-xs bg-gray-100 p-3 rounded overflow-x-auto">
+{`<Grid 
+  autoLayout="auto-fit"
+  minColumnWidth="250px"
+  gap={6}
+>
+  {products.map((product) => (
+    <div 
+      key={product.id}
+      style={product.featured ? { gridRow: 'span 2', gridColumn: 'span 2' } : {}}
+    >
+      {/* Product content */}
+    </div>
+  ))}
+</Grid>`}
+        </pre>
+      </Container>
+    );
+  },
 }; 
