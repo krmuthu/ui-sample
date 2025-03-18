@@ -36,6 +36,12 @@ export default {
  */`
     },
   ],
+  // Enhanced tree-shaking configuration
+  treeshake: {
+    moduleSideEffects: false,
+    propertyReadSideEffects: false,
+    tryCatchDeoptimization: false
+  },
   plugins: [
     external(),
     resolve(),

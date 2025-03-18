@@ -9,6 +9,28 @@
   "files": [
     "dist"
   ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./Button": {
+      "import": "./dist/components/Button/index.esm.js",
+      "require": "./dist/components/Button/index.js",
+      "types": "./dist/components/Button/index.d.ts"
+    },
+    "./Grid": {
+      "import": "./dist/components/Grid/index.esm.js",
+      "require": "./dist/components/Grid/index.js",
+      "types": "./dist/components/Grid/index.d.ts"
+    },
+    "./Table": {
+      "import": "./dist/components/Table/index.esm.js",
+      "require": "./dist/components/Table/index.js",
+      "types": "./dist/components/Table/index.d.ts"
+    }
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -19,12 +41,15 @@
     "build:lib": "rollup -c",
     "build:lib:prod": "node scripts/build-prod.js",
     "build:watch": "rollup -c -w",
+    "build:components": "node scripts/build-components.js",
+    "build:all": "npm run build:lib && npm run build:components",
     "transform-tokens": "node scripts/transform-tokens.mjs",
     "build-tokens": "style-dictionary build --config sd.config.mjs",
     "extract-tokens": "node scripts/extract-theme-values.mjs",
     "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens",
     "version:info": "node scripts/version.js",
-    "test:build": "node scripts/test-build.js"
+    "test:build": "node scripts/test-build.js",
+    "perf:test": "node scripts/perf-test.js"
   },
   "dependencies": {
     "next": "^15.0.0",
@@ -32,7 +57,12 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@babel/core": "^7.26.10",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-react": "^7.26.3",
+    "@babel/preset-typescript": "^7.26.0",
     "@chromatic-com/storybook": "^3.2.5",
+    "@rollup/plugin-babel": "^6.0.4",
     "@rollup/plugin-commonjs": "^28.0.3",
     "@rollup/plugin-node-resolve": "^16.0.0",
     "@rollup/plugin-replace": "^5.0.5",
@@ -66,6 +96,7 @@
     "postcss": "^8.5.3",
     "postcss-preset-env": "^10.1.5",
     "rollup": "^4.35.0",
+    "rollup-plugin-dts": "^6.1.1",
     "rollup-plugin-peer-deps-external": "^2.2.4",
     "rollup-plugin-postcss": "^4.0.2",
     "storybook": "^8.6.4",

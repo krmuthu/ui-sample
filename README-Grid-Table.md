@@ -403,4 +403,150 @@ function CustomCellTable() {
     />
   );
 }
+```
+
+## Performance Optimizations
+
+The Clipper UI library now includes several performance optimizations to ensure components render efficiently and minimize bundle size:
+
+### Optimized Bundle Size
+
+1. **Tree Shaking Enhancements**
+   - Configured Rollup with advanced tree shaking settings
+   - Component-specific imports (`import Button from 'clipper-ui/Button'`)
+   - Reduced side effects for better dead code elimination
+
+2. **Component-by-Component Imports**
+   - Individual component bundles enable selective importing
+   - Smaller bundle sizes when only using specific components
+
+### Rendering Performance
+
+1. **Component Memoization**
+   - Critical components use React.memo to prevent unnecessary re-renders
+   - Custom memoization for complex components with nested data structures
+
+2. **Event Handling Optimizations**
+   - Debouncing for input-heavy components (like searchable Tables)
+   - Throttling for scroll events and resize handling
+
+3. **Virtualization for Large Datasets**
+   - Table component implements virtual rendering for large datasets
+   - Only visible rows are rendered, improving performance dramatically
+
+### Developer Utilities
+
+1. **Performance Monitoring**
+   - Built-in performance monitoring tools during development
+   - Metrics for render times, component updates, and memory usage
+
+2. **Performance Testing**
+   - Automated performance test suite to detect regressions
+   - Benchmarking for component rendering and initialization
+
+### Using Performance Features
+
+#### 1. Selective Imports for Smaller Bundles
+
+```jsx
+// Instead of importing the entire library:
+import { Button, Table, Grid } from 'clipper-ui';
+
+// Import only what you need:
+import Button from 'clipper-ui/Button';
+import Table from 'clipper-ui/Table';
+```
+
+#### 2. Using Performance Monitoring During Development
+
+```jsx
+import { PerformanceMonitor } from 'clipper-ui/utils/performance-monitor';
+
+const YourApp = () => (
+  <PerformanceMonitor id="TableComponent">
+    <Table data={largeDataset} />
+  </PerformanceMonitor>
+);
+```
+
+#### 3. Using Debounce and Throttle
+
+```jsx
+import { debounce, throttle } from 'clipper-ui/utils/performance';
+
+// Debouncing an input event
+const handleSearch = debounce((searchTerm) => {
+  // Perform search operation
+  fetchResults(searchTerm);
+}, 300);
+
+// Throttling a scroll event
+const handleScroll = throttle(() => {
+  // Update UI based on scroll position
+  updateHeader();
+}, 100);
+```
+
+#### 4. Performance Testing
+
+```bash
+# Run the performance test suite
+npm run perf:test
+```
+
+These optimizations ensure that Clipper UI components perform efficiently in production applications, even with large datasets and complex UIs.
+
+## Component-Specific Builds
+
+To enable better tree-shaking and selective imports, the Clipper UI library now supports component-by-component builds. This significantly reduces bundle sizes when only specific components are needed.
+
+### Benefits
+
+- **Smaller Bundle Sizes**: Individual component bundles are much smaller than the full library bundle
+  - Full library: ~84KB
+  - Table component: ~16KB
+  - Button component: ~4KB
+- **Improved Tree Shaking**: Consumers can import only the components they need
+- **Better Performance**: Smaller bundle sizes lead to faster load times
+
+### Usage
+
+Components can be imported directly from their specific paths:
+
+```js
+// Import specific components (smaller bundles)
+import Button from 'clipper-ui/dist/components/Button';
+import Table from 'clipper-ui/dist/components/Table';
+import TextField from 'clipper-ui/dist/components/TextField';
+
+// vs importing from the main bundle (larger)
+import { Button, Table, TextField } from 'clipper-ui';
+```
+
+### Implementation Details
+
+Each component is built using:
+- Babel for transpiling TypeScript to JavaScript
+- TypeScript compiler for generating type declarations
+- ESM and CommonJS output formats
+- Named exports for better compatibility
+
+The build process creates the following files for each component:
+- `dist/components/[ComponentName]/index.js` (CommonJS)
+- `dist/components/[ComponentName]/index.esm.js` (ES Modules)
+- `dist/components/[ComponentName]/[ComponentName].d.ts` (Type declarations)
+- `dist/components/[ComponentName]/index.d.ts` (Type exports)
+
+### Building Components
+
+To build all components:
+
+```bash
+npm run build:components
+```
+
+To build the entire library including components:
+
+```bash
+npm run build:all
 ``` 
