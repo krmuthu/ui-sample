@@ -11,24 +11,24 @@
   ],
   "exports": {
     ".": {
+      "types": "./dist/index.d.ts",
       "import": "./dist/index.esm.js",
-      "require": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "require": "./dist/index.js"
     },
     "./Button": {
+      "types": "./dist/components/Button/index.d.ts",
       "import": "./dist/components/Button/index.esm.js",
-      "require": "./dist/components/Button/index.js",
-      "types": "./dist/components/Button/index.d.ts"
+      "require": "./dist/components/Button/index.js"
     },
     "./Grid": {
+      "types": "./dist/components/Grid/index.d.ts",
       "import": "./dist/components/Grid/index.esm.js",
-      "require": "./dist/components/Grid/index.js",
-      "types": "./dist/components/Grid/index.d.ts"
+      "require": "./dist/components/Grid/index.js"
     },
     "./Table": {
+      "types": "./dist/components/Table/index.d.ts",
       "import": "./dist/components/Table/index.esm.js",
-      "require": "./dist/components/Table/index.js",
-      "types": "./dist/components/Table/index.d.ts"
+      "require": "./dist/components/Table/index.js"
     }
   },
   "scripts": {
@@ -52,6 +52,7 @@
     "perf:test": "node scripts/perf-test.js"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
     "next": "^15.0.0",
     "react": "^18",
     "react-dom": "^18"
@@ -82,6 +83,7 @@
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.2.0",
     "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^29.5.14",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

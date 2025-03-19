@@ -1,0 +1,213 @@
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shrink {
+  from {
+    width: 100%;
+  }
+  to {
+    width: 0%;
+  }
+}
+
+/* Toast container animations based on placement */
+.fixed[class*="top-right"] > * {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.fixed[class*="top-left"] > * {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.fixed[class*="bottom-right"] > * {
+  animation: slideInRight 0.3s ease-out;
+}
+
+.fixed[class*="bottom-left"] > * {
+  animation: slideInLeft 0.3s ease-out;
+}
+
+.fixed[class*="top-center"] > * {
+  animation: slideInDown 0.3s ease-out;
+}
+
+.fixed[class*="bottom-center"] > * {
+  animation: slideInUp 0.3s ease-out;
+}
+
+/* Toast enter/exit animations */
+.toast-enter {
+  opacity: 0;
+  transform: translateY(1rem);
+}
+
+.toast-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.toast-exit {
+  opacity: 1;
+}
+
+.toast-exit-active {
+  opacity: 0;
+  transform: scale(0.9);
+  transition: opacity 200ms, transform 200ms;
+}
+
+/* Progress bar animation */
+.toast-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background-color: currentColor;
+  opacity: 0.2;
+}
+
+/* Custom scrollbar for toast container */
+.fixed {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+.fixed::-webkit-scrollbar {
+  width: 4px;
+}
+
+.fixed::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fixed::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 2px;
+}
+
+/* Toast hover effect */
+.toast {
+  transition: transform 0.2s ease-out;
+}
+
+.toast:hover {
+  transform: translateY(-2px);
+}
+
+/* Toast shadow effect */
+.toast {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: box-shadow 0.2s ease-out;
+}
+
+.toast:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+/* Toast action button hover effect */
+.toast-action {
+  position: relative;
+  overflow: hidden;
+}
+
+.toast-action::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.3s ease-out;
+}
+
+.toast-action:hover::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+/* Toast close button hover effect */
+.toast-close {
+  opacity: 0.6;
+  transition: opacity 0.2s ease-out;
+}
+
+.toast-close:hover {
+  opacity: 1;
+}
+
+/* Toast icon pulse animation for important messages */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.toast-icon--warning,
+.toast-icon--error {
+  animation: pulse 2s infinite;
+}
+
+/* Toast stacking effect */
+.fixed > * + * {
+  margin-top: 0.5rem;
+} 
