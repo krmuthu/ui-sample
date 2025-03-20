@@ -51,6 +51,12 @@ export interface ToastProps {
    * @default "md"
    */
   size?: ToastSize;
+
+  /**
+   * Placement of the toast
+   * @default "top-right"
+   */
+  placement?: ToastPlacement;
   
   /**
    * Action button configuration
@@ -90,12 +96,6 @@ export interface ToastProviderProps {
   defaultDuration?: number;
   
   /**
-   * Default placement for toasts
-   * @default "top-right"
-   */
-  defaultPlacement?: ToastPlacement;
-  
-  /**
    * Default size for toasts
    * @default "md"
    */
@@ -110,22 +110,19 @@ export interface ToastProviderProps {
 
 interface ToastState {
   toasts: ToastProps[];
-  placement: ToastPlacement;
 }
 
 type ToastAction =
   | { type: 'ADD_TOAST'; toast: ToastProps }
   | { type: 'REMOVE_TOAST'; id: string }
   | { type: 'UPDATE_TOAST'; id: string; updates: Partial<ToastProps> }
-  | { type: 'CLEAR_TOASTS' }
-  | { type: 'SET_PLACEMENT'; placement: ToastPlacement };
+  | { type: 'CLEAR_TOASTS' };
 
 interface ToastContextValue {
   toasts: ToastProps[];
   show: (toast: Omit<ToastProps, 'id'>) => string;
   update: (id: string, toast: Partial<Omit<ToastProps, 'id'>>) => void;
   clear: () => void;
-  setPlacement: (placement: ToastPlacement) => void;
 }
 
 const ToastContext = createContext<ToastContextValue | undefined>(undefined);
@@ -153,11 +150,6 @@ const toastReducer = (state: ToastState, action: ToastAction): ToastState => {
       return {
         ...state,
         toasts: [],
-      };
-    case 'SET_PLACEMENT':
-      return {
-        ...state,
-        placement: action.placement,
       };
     default:
       return state;
@@ -304,37 +296,65 @@ export const Toast: React.FC<ToastProps> = ({
   );
 };
 
-const ToastContainer: React.FC<{ placement: ToastPlacement }> = ({ placement }) => {
+const ToastContainer: React.FC = () => {
   const context = useContext(ToastContext);
   
   if (!context) {
     throw new Error('ToastContainer must be used within a ToastProvider');
   }
-  
-  const placementClasses = {
-    'top-left': 'top-0 left-0',
-    'top-right': 'top-0 right-0',
-    'bottom-left': 'bottom-0 left-0',
-    'bottom-right': 'bottom-0 right-0',
-    'top-center': 'top-0 left-1/2 -translate-x-1/2',
-    'bottom-center': 'bottom-0 left-1/2 -translate-x-1/2',
-  }[placement];
+
+  // Group toasts by placement
+  const toastsByPlacement = context.toasts.reduce((acc, toast) => {
+    const placement = toast.placement || 'top-right';
+    if (!acc[placement]) {
+      acc[placement] = [];
+    }
+    acc[placement].push(toast);
+    return acc;
+  }, {} as Record<ToastPlacement, ToastProps[]>);
 
   return createPortal(
-    <div
-      className={`
-        fixed z-50 m-4 flex flex-col gap-2
-        ${placementClasses}
-      `}
-      style={{
-        maxWidth: 'calc(100% - 2rem)',
-        width: '24rem',
-      }}
-    >
-      {context.toasts.map(toast => (
-        <Toast key={toast.id} {...toast} />
-      ))}
-    </div>,
+    <>
+      {Object.entries(toastsByPlacement).map(([placement, toasts]) => {
+        const placementClasses = {
+          'top-left': 'top-0 left-0',
+          'top-right': 'top-0 right-0',
+          'bottom-left': 'bottom-0 left-0',
+          'bottom-right': 'bottom-0 right-0',
+          'top-center': 'top-0 left-1/2 -translate-x-1/2',
+          'bottom-center': 'bottom-0 left-1/2 -translate-x-1/2',
+        }[placement as ToastPlacement];
+
+        const animationClasses = {
+          'top-left': 'animate-slideInLeft',
+          'top-right': 'animate-slideInRight',
+          'bottom-left': 'animate-slideInLeft',
+          'bottom-right': 'animate-slideInRight',
+          'top-center': 'animate-slideInDown',
+          'bottom-center': 'animate-slideInUp',
+        }[placement as ToastPlacement];
+
+        return (
+          <div
+            key={placement}
+            className={`
+              fixed z-50 m-4 flex flex-col gap-2
+              ${placementClasses}
+            `}
+            style={{
+              maxWidth: 'calc(100% - 2rem)',
+              width: '24rem',
+            }}
+          >
+            {toasts.map(toast => (
+              <div key={toast.id} className={animationClasses}>
+                <Toast {...toast} />
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </>,
     document.body
   );
 };
@@ -343,13 +363,11 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
   children,
   maxToasts = 5,
   defaultDuration = 5000,
-  defaultPlacement = 'top-right',
   defaultSize = 'md',
   defaultShowProgress = false,
 }) => {
   const [state, dispatch] = useReducer(toastReducer, {
     toasts: [],
-    placement: defaultPlacement,
   });
 
   const addToast = useCallback((toast: Omit<ToastProps, 'id'>) => {
@@ -360,6 +378,7 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
       duration: defaultDuration,
       size: defaultSize,
       showProgress: defaultShowProgress,
+      placement: 'top-right',
       ...toast,
     };
     
@@ -391,10 +410,6 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
     dispatch({ type: 'CLEAR_TOASTS' });
   }, []);
 
-  const setPlacement = useCallback((placement: ToastPlacement) => {
-    dispatch({ type: 'SET_PLACEMENT', placement });
-  }, []);
-
   return (
     <ToastContext.Provider
       value={{
@@ -402,11 +417,10 @@ export const ToastProvider: React.FC<ToastProviderProps> = ({
         show: addToast,
         update: updateToast,
         clear: clearToasts,
-        setPlacement,
       }}
     >
       {children}
-      <ToastContainer placement={state.placement} />
+      <ToastContainer />
     </ToastContext.Provider>
   );
 };

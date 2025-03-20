@@ -153,15 +153,15 @@ const PlacementDemo = () => {
       {placements.map((placement) => (
         <button
           key={placement}
-          onClick={() =>
+          onClick={() => {
             toast.show({
               title: `${placement} Toast`,
               message: `This toast appears in the ${placement} position`,
-              placement,
               variant: 'info',
               duration: 3000,
-            })
-          }
+              placement,
+            });
+          }}
           className="px-4 py-2 bg-blue-200 rounded hover:bg-blue-300"
         >
           Show {placement} Toast

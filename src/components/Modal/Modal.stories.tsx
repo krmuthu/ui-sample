@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import Dialog from './Dialog';
+import { Modal } from './Modal';
 import { Button } from '../Button';
 
-const meta: Meta<typeof Dialog> = {
-  title: 'Components/Dialog',
-  component: Dialog,
+const meta: Meta<typeof Modal> = {
+  title: 'Components/Modal',
+  component: Modal,
   parameters: {
     layout: 'centered',
   },
@@ -13,36 +13,36 @@ const meta: Meta<typeof Dialog> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof Dialog>;
+type Story = StoryObj<typeof Modal>;
 
-const DialogDemo = () => {
+const ModalDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div>
-      <Button onClick={() => setIsOpen(true)}>Open Dialog</Button>
-      <Dialog
-        open={isOpen}
+      <Button onClick={() => setIsOpen(true)}>Open Modal</Button>
+      <Modal
+        isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Example Dialog"
-        size="medium"
+        title="Example Modal"
+        size="md"
       >
         <div className="space-y-4">
-          <p>This is an example dialog with some content.</p>
+          <p>This is an example modal with some content.</p>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
             <Button>Confirm</Button>
           </div>
         </div>
-      </Dialog>
+      </Modal>
     </div>
   );
 };
 
 export const Default: Story = {
-  render: () => <DialogDemo />,
+  render: () => <ModalDemo />,
 };
 
 export const WithFooter: Story = {
@@ -51,22 +51,22 @@ export const WithFooter: Story = {
 
     return (
       <div>
-        <Button onClick={() => setIsOpen(true)}>Open Dialog with Footer</Button>
-        <Dialog
-          open={isOpen}
+        <Button onClick={() => setIsOpen(true)}>Open Modal with Footer</Button>
+        <Modal
+          isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Dialog with Footer"
+          title="Modal with Footer"
           footer={
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
               <Button>Confirm</Button>
             </div>
           }
         >
-          <p>This dialog uses the footer prop for action buttons.</p>
-        </Dialog>
+          <p>This modal uses the footer prop for action buttons.</p>
+        </Modal>
       </div>
     );
   },
@@ -74,30 +74,30 @@ export const WithFooter: Story = {
 
 export const Sizes: Story = {
   render: () => {
-    const [size, setSize] = useState<'small' | 'medium' | 'large'>('medium');
+    const [size, setSize] = useState<'sm' | 'md' | 'lg' | 'xl' | 'full'>('md');
     const [isOpen, setIsOpen] = useState(false);
 
     return (
       <div className="space-y-4">
         <div className="flex space-x-2">
-          <Button onClick={() => setSize('small')}>Small</Button>
-          <Button onClick={() => setSize('medium')}>Medium</Button>
-          <Button onClick={() => setSize('large')}>Large</Button>
+          <Button onClick={() => setSize('sm')}>Small</Button>
+          <Button onClick={() => setSize('md')}>Medium</Button>
+          <Button onClick={() => setSize('lg')}>Large</Button>
         </div>
-        <Button onClick={() => setIsOpen(true)}>Open {size} Dialog</Button>
-        <Dialog
-          open={isOpen}
+        <Button onClick={() => setIsOpen(true)}>Open {size} Modal</Button>
+        <Modal
+          isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          title={`${size.charAt(0).toUpperCase() + size.slice(1)} Dialog`}
+          title={`${size.charAt(0).toUpperCase() + size.slice(1)} Modal`}
           size={size}
         >
-          <p>This is a {size} sized dialog.</p>
+          <p>This is a {size} sized modal.</p>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Close
             </Button>
           </div>
-        </Dialog>
+        </Modal>
       </div>
     );
   },
@@ -109,20 +109,20 @@ export const WithoutCloseButton: Story = {
 
     return (
       <div>
-        <Button onClick={() => setIsOpen(true)}>Open Dialog Without Close Button</Button>
-        <Dialog
-          open={isOpen}
+        <Button onClick={() => setIsOpen(true)}>Open Modal Without Close Button</Button>
+        <Modal
+          isOpen={isOpen}
           onClose={() => setIsOpen(false)}
           title="No Close Button"
           showCloseButton={false}
         >
-          <p>This dialog does not have a close button in the header.</p>
+          <p>This modal does not have a close button in the header.</p>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="secondary" onClick={() => setIsOpen(false)}>
               Close
             </Button>
           </div>
-        </Dialog>
+        </Modal>
       </div>
     );
   },
@@ -134,12 +134,12 @@ export const WithRichContent: Story = {
 
     return (
       <div>
-        <Button onClick={() => setIsOpen(true)}>Open Rich Content Dialog</Button>
-        <Dialog
-          open={isOpen}
+        <Button onClick={() => setIsOpen(true)}>Open Rich Content Modal</Button>
+        <Modal
+          isOpen={isOpen}
           onClose={() => setIsOpen(false)}
-          title="Rich Content Dialog"
-          size="large"
+          title="Rich Content Modal"
+          size="lg"
         >
           <div className="space-y-4">
             <div className="bg-gray-50 p-4 rounded-lg">
@@ -155,13 +155,13 @@ export const WithRichContent: Story = {
               <p>One more section to demonstrate scrolling.</p>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
+              <Button variant="secondary" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
               <Button>Save Changes</Button>
             </div>
           </div>
-        </Dialog>
+        </Modal>
       </div>
     );
   },

@@ -3,7 +3,7 @@ import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom';
 import ButtonGroup from './ButtonGroup';
-import Button from '../Button/Button';
+import { Button } from '../Button';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 
 // Wrap components in ThemeProvider for testing

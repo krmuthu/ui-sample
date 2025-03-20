@@ -109,7 +109,7 @@ export const Tabs: React.FC<TabsProps> = ({
 
   useEffect(() => {
     if (currentTab && !renderedTabs.has(currentTab)) {
-      setRenderedTabs(prev => new Set([...prev, currentTab]));
+      setRenderedTabs(prev => new Set([...Array.from(prev), currentTab]));
     }
   }, [currentTab]);
 

@@ -6,7 +6,7 @@ import {
   Link,
   ThemeToggle,
   useTheme,
-  version,
+  getVersion,
   getFormattedVersion,
   theme,
   TextField,
@@ -20,6 +20,7 @@ import {
 import ThemeTest from './ThemeTest';
 
 function App() {
+  const version = getVersion()
   const formattedVersion = getFormattedVersion();
   const { theme: currentTheme } = useTheme();
   const [formData, setFormData] = useState({

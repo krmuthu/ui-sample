@@ -1,6 +1,6 @@
 import React from 'react';
 import { useTheme } from '../ThemeProvider/ThemeProvider';
-import Button from '../Button/Button';
+import { Button } from '../Button';
 
 interface ThemeToggleProps {
   className?: string;

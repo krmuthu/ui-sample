@@ -71,7 +71,32 @@ export interface DialogProps {
    * ID for the dialog description for accessibility purposes
    */
   descriptionId?: string;
+  
+  /**
+   * Whether the dialog should be vertically centered
+   * @default true
+   */
+  centered?: boolean;
 }
+
+// Define the Footer component interface
+interface FooterProps {
+  children: React.ReactNode;
+}
+
+// Define the compound component interface for Dialog
+interface DialogComponent extends React.FC<DialogProps> {
+  Footer: React.FC<FooterProps>;
+}
+
+// Dialog Footer component
+const Footer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  return (
+    <div className="flex justify-end space-x-2 p-4 border-t border-gray-200">
+      {children}
+    </div>
+  );
+};
 
 const Dialog: React.FC<DialogProps> = ({
   open = false,
@@ -87,8 +112,10 @@ const Dialog: React.FC<DialogProps> = ({
   id,
   titleId: propsTitleId,
   descriptionId: propsDescriptionId,
+  centered = true,
 }) => {
   const [mounted, setMounted] = useState(false);
+  const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
   const initialFocusRef = useRef<HTMLElement | null>(null);
   const previousActiveElement = useRef<Element | null>(null);
@@ -98,10 +125,24 @@ const Dialog: React.FC<DialogProps> = ({
   const titleId = propsTitleId || `${dialogId}-title`;
   const descriptionId = propsDescriptionId || `${dialogId}-description`;
   
-  // Track mount state for SSR compatibility
+  // Create portal container and track mount state
   useEffect(() => {
-    setMounted(true);
-    return () => setMounted(false);
+    if (typeof document !== 'undefined') {
+      // Create portal container if it doesn't exist
+      let container = document.getElementById('dialog-portal');
+      if (!container) {
+        container = document.createElement('div');
+        container.id = 'dialog-portal';
+        document.body.appendChild(container);
+      }
+      setPortalContainer(container);
+      setMounted(true);
+    }
+    
+    return () => {
+      setMounted(false);
+      setPortalContainer(null);
+    };
   }, []);
   
   // Handle ESC key press
@@ -166,7 +207,7 @@ const Dialog: React.FC<DialogProps> = ({
   };
   
   // Don't render anything on the server or when not mounted
-  if (!mounted || !open) return null;
+  if (!mounted || !open || !portalContainer) return null;
   
   const handleBackdropClick = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget && closeOnBackdropClick) {
@@ -176,7 +217,7 @@ const Dialog: React.FC<DialogProps> = ({
   
   const dialog = (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto p-4 bg-black bg-opacity-50 transition-opacity"
+      className={`fixed inset-0 z-50 flex ${centered ? 'items-center' : 'items-start pt-10'} justify-center overflow-y-auto p-4 bg-black bg-opacity-50 transition-opacity`}
       onClick={handleBackdropClick}
       aria-labelledby={title ? titleId : undefined}
       aria-describedby={descriptionId}
@@ -227,7 +268,11 @@ const Dialog: React.FC<DialogProps> = ({
     </div>
   );
   
-  return createPortal(dialog, document.body);
+  return createPortal(dialog, portalContainer);
 };
 
-export default Dialog; 
+// @ts-expect-error - Adding Footer property to functional component
+Dialog.Footer = Footer;
+
+// Cast to the proper type when exporting
+export default Dialog as DialogComponent; 
