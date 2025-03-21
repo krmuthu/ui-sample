@@ -2,8 +2,8 @@ import React from 'react';
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import ThemeToggle from './ThemeToggle';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
+import { ThemeToggle } from './ThemeToggle';
 
 // Define proper interface for mocked button props
 interface MockedButtonProps {

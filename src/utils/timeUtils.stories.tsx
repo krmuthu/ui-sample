@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meta } from '@storybook/react';
-import TimeList, { TimeOption } from '../components/TimeList/TimeList';
+import { TimeList, TimeOption } from '../components/TimeList/TimeList';
 import {
   TimeConstraints,
   createBusinessHoursConstraints,

@@ -58,7 +58,7 @@ export interface TimeListProps {
   className?: string;
 }
 
-const TimeList: React.FC<TimeListProps> = ({
+export const TimeList: React.FC<TimeListProps> = ({
   selectedHour,
   selectedMinute,
   selectedPeriod = 'AM',
@@ -163,5 +163,3 @@ const TimeList: React.FC<TimeListProps> = ({
     </div>
   );
 };
-
-export default TimeList; 

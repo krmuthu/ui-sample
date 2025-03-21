@@ -1,5 +1,5 @@
 import React from 'react';
-import type { Meta, StoryObj } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import { Tooltip } from './Tooltip';
 
 const meta: Meta<typeof Tooltip> = {
@@ -15,105 +15,69 @@ export default meta;
 type Story = StoryObj<typeof Tooltip>;
 
 export const Basic: Story = {
-  render: () => (
-    <div className="p-16">
-      <Tooltip content="This is a basic tooltip">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Hover me
-        </button>
-      </Tooltip>
-    </div>
-  ),
+  args: {
+    content: 'This is a tooltip',
+    children: <button className="px-4 py-2 bg-blue-500 text-white rounded">Hover me</button>,
+    placement: 'top',
+  },
 };
 
 export const Placements: Story = {
   render: () => (
-    <div className="grid grid-cols-2 gap-8 p-16">
-      <Tooltip content="Top tooltip" placement="top">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Top
-        </button>
+    <div className="grid grid-cols-2 gap-8 p-10 place-items-center">
+      <Tooltip content="Top placement" placement="top">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Top</button>
       </Tooltip>
-      <Tooltip content="Bottom tooltip" placement="bottom">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Bottom
-        </button>
+      
+      <Tooltip content="Right placement" placement="right">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Right</button>
       </Tooltip>
-      <Tooltip content="Left tooltip" placement="left">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Left
-        </button>
+      
+      <Tooltip content="Bottom placement" placement="bottom">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Bottom</button>
       </Tooltip>
-      <Tooltip content="Right tooltip" placement="right">
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Right
-        </button>
+      
+      <Tooltip content="Left placement" placement="left">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Left</button>
       </Tooltip>
     </div>
   ),
 };
 
-export const WithCustomContent: Story = {
+export const CustomOffset: Story = {
   render: () => (
-    <div className="p-16">
-      <Tooltip
-        content={
-          <div className="text-center">
-            <h3 className="font-bold mb-1">Custom Tooltip</h3>
-            <p className="text-sm">This tooltip has custom HTML content</p>
-            <hr className="my-2 border-gray-500" />
-            <p className="text-xs">With multiple lines</p>
-          </div>
-        }
-      >
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          Hover for rich content
-        </button>
+    <div className="flex flex-col items-center gap-8 p-10">
+      <Tooltip content="Default offset (8px)" placement="top">
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Default Offset</button>
+      </Tooltip>
+      
+      <Tooltip content="Small offset (4px)" placement="top" offset={4}>
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Small Offset</button>
+      </Tooltip>
+      
+      <Tooltip content="Large offset (16px)" placement="top" offset={16}>
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Large Offset</button>
+      </Tooltip>
+      
+      <Tooltip content="Very large offset (32px)" placement="top" offset={32}>
+        <button className="px-4 py-2 bg-blue-500 text-white rounded">Very Large Offset</button>
       </Tooltip>
     </div>
   ),
 };
 
-export const WithDelay: Story = {
-  render: () => (
-    <div className="flex gap-4 p-16">
-      <Tooltip content="Quick tooltip" showDelay={0} hideDelay={0}>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          No delay
-        </button>
-      </Tooltip>
-      <Tooltip content="Delayed tooltip" showDelay={1000} hideDelay={500}>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          With delay
-        </button>
-      </Tooltip>
-    </div>
-  ),
+export const NoArrow: Story = {
+  args: {
+    content: 'Tooltip without arrow',
+    children: <button className="px-4 py-2 bg-blue-500 text-white rounded">No Arrow</button>,
+    arrow: false,
+  },
 };
 
-export const WithoutArrow: Story = {
-  render: () => (
-    <div className="p-16">
-      <Tooltip content="Tooltip without arrow" arrow={false}>
-        <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-          No arrow
-        </button>
-      </Tooltip>
-    </div>
-  ),
-};
-
-export const CustomStyles: Story = {
-  render: () => (
-    <div className="p-16">
-      <Tooltip
-        content="Custom styled tooltip"
-        className="bg-purple-600 text-white font-bold"
-      >
-        <button className="px-4 py-2 bg-purple-500 text-white rounded hover:bg-purple-600">
-          Custom style
-        </button>
-      </Tooltip>
-    </div>
-  ),
+export const CustomStyle: Story = {
+  args: {
+    content: 'Custom styled tooltip',
+    children: <button className="px-4 py-2 bg-blue-500 text-white rounded">Custom Style</button>,
+    className: 'bg-red-500 text-yellow-100 font-bold',
+  },
 }; 

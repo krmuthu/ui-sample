@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import Calendar from '../Calendar/Calendar';
+import { Calendar } from '../Calendar/Calendar';
 
 export interface DatePickerProps {
   /**
@@ -278,7 +278,7 @@ const isDateDisabledWithConstraints = (
 };
 
 // Date Picker Component
-const DatePicker: React.FC<DatePickerProps> = ({
+export const DatePicker: React.FC<DatePickerProps> = ({
   value = null,
   onChange,
   label,
@@ -670,5 +670,3 @@ const DatePicker: React.FC<DatePickerProps> = ({
     </div>
   );
 };
-
-export default DatePicker; 

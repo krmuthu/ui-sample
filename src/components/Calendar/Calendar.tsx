@@ -149,7 +149,7 @@ const generateCalendarDays = (
 };
 
 // Calendar Component
-const Calendar: React.FC<CalendarProps> = ({
+export const Calendar: React.FC<CalendarProps> = ({
   value = null,
   onChange,
   minDate,
@@ -504,5 +504,3 @@ const Calendar: React.FC<CalendarProps> = ({
     </div>
   );
 };
-
-export default Calendar; 

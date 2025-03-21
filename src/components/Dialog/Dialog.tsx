@@ -98,7 +98,7 @@ const Footer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   );
 };
 
-const Dialog: React.FC<DialogProps> = ({
+export const Dialog: React.FC<DialogProps> = ({
   open = false,
   onClose,
   title,
@@ -273,6 +273,3 @@ const Dialog: React.FC<DialogProps> = ({
 
 // @ts-expect-error - Adding Footer property to functional component
 Dialog.Footer = Footer;
-
-// Cast to the proper type when exporting
-export default Dialog as DialogComponent; 

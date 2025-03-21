@@ -10,7 +10,7 @@ export interface LinkProps {
   onClick?: (event: React.MouseEvent<HTMLAnchorElement>) => void;
 }
 
-const Link: React.FC<LinkProps> = ({
+export const Link: React.FC<LinkProps> = ({
   href,
   children,
   variant = 'default',
@@ -46,5 +46,3 @@ const Link: React.FC<LinkProps> = ({
     </a>
   );
 };
-
-export default Link; 

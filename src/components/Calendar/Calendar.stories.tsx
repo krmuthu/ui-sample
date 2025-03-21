@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import Calendar from './Calendar';
+import { Calendar } from './Calendar';
 
 // Define the meta information for the Calendar component
 const meta: Meta<typeof Calendar> = {

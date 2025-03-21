@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import TimePicker from './TimePicker';
+import { TimePicker } from './TimePicker';
 
 /**
  * TimePicker component allows users to select a time value.

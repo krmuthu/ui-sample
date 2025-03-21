@@ -32,6 +32,63 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+// Direct examples of each Toast variant
+export const DirectExamples: Story = {
+  render: () => (
+    <div className="space-y-4 w-96">
+      <Toast 
+        id="info-example"
+        title="Info Toast"
+        message="This is an info message"
+        variant="info"
+        dismissible={true}
+        showProgress={false}
+        size="md"
+      />
+      
+      <Toast 
+        id="success-example"
+        title="Success Toast"
+        message="This is a success message"
+        variant="success"
+        dismissible={true}
+        showProgress={false}
+        size="md"
+      />
+      
+      <Toast 
+        id="warning-example"
+        title="Warning Toast"
+        message="This is a warning message"
+        variant="warning"
+        dismissible={true}
+        showProgress={false}
+        size="md"
+      />
+      
+      <Toast 
+        id="error-example"
+        title="Error Toast"
+        message="This is an error message"
+        variant="error"
+        dismissible={true}
+        showProgress={false}
+        size="md"
+      />
+      
+      <Toast 
+        id="neutral-example"
+        title="Neutral Toast"
+        message="This is a neutral message"
+        variant="neutral"
+        dismissible={true}
+        showProgress={false}
+        size="md"
+      />
+    </div>
+  ),
+};
+
 const ToastDemo = () => {
   const toast = useToast();
 
@@ -173,7 +230,7 @@ const PlacementDemo = () => {
 
 const SizesDemo = () => {
   const toast = useToast();
-  const sizes = ['small', 'medium', 'large'] as const;
+  const sizes = ['sm', 'md', 'lg'] as const;
 
   return (
     <div className="flex gap-4">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import Dialog from './Dialog';
+import { Dialog } from './Dialog';
 import { Button } from '../Button';
 
 const meta: Meta<typeof Dialog> = {
@@ -30,7 +30,7 @@ const DialogDemo = () => {
         <div className="space-y-4">
           <p>This is an example dialog with some content.</p>
           <div className="flex justify-end space-x-2">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="tertiary" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
             <Button>Confirm</Button>
@@ -58,7 +58,7 @@ export const WithFooter: Story = {
           title="Dialog with Footer"
           footer={
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
+              <Button variant="tertiary" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
               <Button>Confirm</Button>
@@ -93,7 +93,7 @@ export const Sizes: Story = {
         >
           <p>This is a {size} sized dialog.</p>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="tertiary" onClick={() => setIsOpen(false)}>
               Close
             </Button>
           </div>
@@ -118,7 +118,7 @@ export const WithoutCloseButton: Story = {
         >
           <p>This dialog does not have a close button in the header.</p>
           <div className="flex justify-end space-x-2 mt-4">
-            <Button variant="outline" onClick={() => setIsOpen(false)}>
+            <Button variant="tertiary" onClick={() => setIsOpen(false)}>
               Close
             </Button>
           </div>
@@ -155,7 +155,7 @@ export const WithRichContent: Story = {
               <p>One more section to demonstrate scrolling.</p>
             </div>
             <div className="flex justify-end space-x-2">
-              <Button variant="outline" onClick={() => setIsOpen(false)}>
+              <Button variant="tertiary" onClick={() => setIsOpen(false)}>
                 Cancel
               </Button>
               <Button>Save Changes</Button>

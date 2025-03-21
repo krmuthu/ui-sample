@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 // Individual imports for components
 import { Button } from '../../src/components/Button';
-import Dialog from '../../src/components/Dialog';
+import { Dialog } from '../../src/components/Dialog';
 import { Icon } from '../../src/components/Icon';
 
 const IntegrationDemo = () => {

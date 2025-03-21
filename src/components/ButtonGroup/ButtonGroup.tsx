@@ -74,7 +74,7 @@ interface EnhancedButtonProps extends Partial<ButtonProps> {
 /**
  * ButtonGroup component for grouping related buttons with consistent styling
  */
-const ButtonGroup: React.FC<ButtonGroupProps> = ({
+export const ButtonGroup: React.FC<ButtonGroupProps> = ({
   children,
   orientation = 'horizontal',
   spacing = 'default',
@@ -189,5 +189,3 @@ const ButtonGroup: React.FC<ButtonGroupProps> = ({
     </div>
   );
 };
-
-export default ButtonGroup; 

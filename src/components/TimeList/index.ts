@@ -1,2 +1,2 @@
-export { default } from './TimeList';
+export { TimeList } from './TimeList';
 export * from './TimeList'; 

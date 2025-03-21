@@ -230,12 +230,18 @@ export const Toast: React.FC<ToastProps> = ({
   return (
     <div
       className={clsx(
-        'toast',
+        'toast border rounded-md shadow-sm',
+        variantClasses,
+        sizeClasses,
         `toast--${variant}`,
         `toast--${size}`,
         className
       )}
       role="alert"
+      style={{
+        borderWidth: '1px',
+        borderStyle: 'solid' 
+      }}
     >
       <div className="flex items-start gap-3">
         {variant !== 'neutral' && (

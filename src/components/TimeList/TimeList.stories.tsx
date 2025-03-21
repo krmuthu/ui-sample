@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import TimeList, { TimeOption } from './TimeList';
+import { TimeList, TimeOption } from './TimeList';
 
 const meta: Meta<typeof TimeList> = {
   title: 'Components/TimeList',

@@ -2,7 +2,7 @@ import React from 'react';
 import type { Preview } from '@storybook/react';
 import '../src/styles/globals.css';
 import { ThemeProvider } from '../src/components/ThemeProvider/ThemeProvider';
-import ThemeToggle from '../src/components/ThemeToggle/ThemeToggle';
+import { ThemeToggle } from '../src/components/ThemeToggle/ThemeToggle';
 
 const preview: Preview = {
   parameters: {

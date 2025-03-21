@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import TimeList from '../TimeList';
+import { TimeList } from '../TimeList';
 
 export interface TimePickerProps {
   /**
@@ -381,7 +381,7 @@ const findFirstEnabledMinute = (
 };
 
 // TimePicker Component
-const TimePicker: React.FC<TimePickerProps> = ({
+export const TimePicker: React.FC<TimePickerProps> = ({
   value = null,
   onChange,
   label,
@@ -903,5 +903,3 @@ const TimePicker: React.FC<TimePickerProps> = ({
     </div>
   );
 };
-
-export default TimePicker; 

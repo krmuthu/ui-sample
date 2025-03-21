@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import Calendar from '../Calendar/Calendar';
-import TimeList, { TimeOption } from '../TimeList';
+import { Calendar } from '../Calendar/Calendar';
+import {TimeList,  TimeOption } from '../TimeList';
 
 export interface DateTimePickerProps {
   /**
@@ -366,7 +366,7 @@ const isDateDisabledWithConstraints = (
 };
 
 // DateTimePicker Component
-const DateTimePicker: React.FC<DateTimePickerProps> = ({
+export const DateTimePicker: React.FC<DateTimePickerProps> = ({
   value = null,
   onChange,
   label,
@@ -1105,5 +1105,3 @@ const findFirstEnabledMinute = (
   // If no enabled minute found, return 0 as default
   return 0;
 };
-
-export default DateTimePicker; 

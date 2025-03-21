@@ -2,12 +2,12 @@ import React from 'react';
 import { useTheme } from '../ThemeProvider/ThemeProvider';
 import { Button } from '../Button';
 
-interface ThemeToggleProps {
+export interface ThemeToggleProps {
   className?: string;
   variant?: 'button' | 'icon';
 }
 
-const ThemeToggle: React.FC<ThemeToggleProps> = ({ 
+export const ThemeToggle: React.FC<ThemeToggleProps> = ({ 
   className = '',
   variant = 'button' 
 }) => {
@@ -80,5 +80,3 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({
     </Button>
   );
 };
-
-export default ThemeToggle; 

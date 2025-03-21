@@ -1,7 +1,7 @@
 // UI Components
-export { default as Button } from './Button';
+export { Button } from './Button';
 export { Card } from './Card';
-export { default as Dialog } from './Dialog';
+export { Dialog } from './Dialog';
 export { Modal } from './Modal';
 export { Pagination } from './Pagination';
 export { Popover } from './Popover';

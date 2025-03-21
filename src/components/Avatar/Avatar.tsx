@@ -59,7 +59,7 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
 /**
  * Avatar component for displaying user profile images with fallback to initials
  */
-const Avatar: React.FC<AvatarProps> = ({
+export const Avatar: React.FC<AvatarProps> = ({
   src,
   alt = 'User avatar',
   size = 'medium',
@@ -175,5 +175,3 @@ function getInitialsFromName(name: string): string {
     return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   }
 }
-
-export default Avatar; 
