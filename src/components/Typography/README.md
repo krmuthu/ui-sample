@@ -1,0 +1,87 @@
+# Typography Component
+
+## Overview
+
+The variant of the typography component
+
+## Installation
+
+```bash
+npm install clipper-ui
+# or
+yarn add clipper-ui
+```
+
+## Usage
+
+```jsx
+import { Typography } from 'clipper-ui';
+
+function MyComponent() {
+  return (
+    <Typography 
+      variant="primary" 
+      size="md"
+    >
+      Content goes here
+    </Typography>
+  );
+}
+```
+
+## Props
+
+| Prop | Type | Default | Description |
+|------|------|---------|-------------|
+| `variant` | `'default' \| 'primary' \| 'secondary'` | `'default'` | Visual variant of the component |
+| `size` | `'sm' \| 'md' \| 'lg'` | `'md'` | Size of the component |
+| `disabled` | `boolean` | `false` | Whether the component is disabled |
+| `className` | `string` | `''` | Additional CSS class names |
+| `onClick` | `(event: React.MouseEvent<HTMLElement>) => void` | - | Callback fired when the component is clicked |
+| `children` | `React.ReactNode` | - | Content of the component |
+
+## Examples
+
+### Basic Usage
+
+```jsx
+<Typography>Default Typography</Typography>
+```
+
+### Variants
+
+```jsx
+<Typography variant="primary">Primary Typography</Typography>
+<Typography variant="secondary">Secondary Typography</Typography>
+```
+
+### Sizes
+
+```jsx
+<Typography size="sm">Small Typography</Typography>
+<Typography size="md">Medium Typography</Typography>
+<Typography size="lg">Large Typography</Typography>
+```
+
+### Disabled State
+
+```jsx
+<Typography disabled>Disabled Typography</Typography>
+```
+
+## Accessibility
+
+- The component sets appropriate `aria-disabled` attributes based on the `disabled` prop.
+- Use the `aria-label` prop to provide accessible names when needed.
+
+## Best Practices
+
+- Use primary variant for main actions
+- Use default variant for general content
+- Ensure there is sufficient color contrast for all variants
+
+## Design Considerations
+
+- The component supports both light and dark themes
+- Styling is based on a consistent design system
+- Typography is handled automatically based on size 

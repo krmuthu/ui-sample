@@ -1,182 +1,312 @@
 # Clipper UI
 
-A modern, lightweight React component library optimized for performance and developer experience.
-
-![npm version](https://img.shields.io/npm/v/clipper-ui)
-![bundle size](https://img.shields.io/bundlephobia/minzip/clipper-ui)
-![license](https://img.shields.io/npm/l/clipper-ui)
+A modern, accessible, and customizable React component library built with TypeScript and Tailwind CSS.
 
 ## Features
 
-- 🚀 **Optimized for Performance**: Component-specific builds for smaller bundles
-- 🎨 **Modern Design System**: Clean, consistent UI components
-- 📱 **Fully Responsive**: Works on mobile, tablet, and desktop
-- 🔧 **Highly Customizable**: Theming support and flexible props
-- 📦 **Tree-Shakable**: Import only what you need
-- 🔍 **Accessibility Focused**: WCAG 2.1 compliant components
-- 📝 **TypeScript Support**: Full type definitions included
+- **Modern Design**: Clean, consistent design system
+- **Accessibility**: WCAG 2.1 AA compliant components with full keyboard navigation and screen reader support
+- **Customization**: Flexible theming with support for light and dark modes
+- **TypeScript**: Full type definitions for enhanced developer experience
+- **Well Documented**: Comprehensive documentation with Storybook and component-specific guides
+- **Tree-Shaking**: Import only what you need to reduce bundle size
+- **Cross-Browser Support**: Tested across all modern browsers
+
+## Quick Links
+
+- [Installation](#installation)
+- [Usage](#usage)
+- [Documentation](#documentation)
+- [Accessibility Guide](docs/ACCESSIBILITY.md)
+- [Component Categories](#component-categories)
+- [Contributing](CONTRIBUTING.md)
 
 ## Installation
 
 ```bash
-# Using npm
 npm install clipper-ui
-
-# Using yarn
+# or
 yarn add clipper-ui
-
-# Using pnpm
-pnpm add clipper-ui
 ```
 
-## Quick Start
+## Usage
+
+### Basic Usage
 
 ```jsx
-import React from 'react';
-import { Button, Container, TextField } from 'clipper-ui';
+import { Button, Card, Typography } from 'clipper-ui';
 
 function App() {
   return (
-    <Container>
-      <h1>Hello Clipper UI!</h1>
-      <TextField label="Username" placeholder="Enter your username" />
-      <Button variant="primary">Login</Button>
-    </Container>
+    <Card>
+      <Typography variant="headline2">Hello World</Typography>
+      <Typography variant="body1">
+        This is a sample component using Clipper UI.
+      </Typography>
+      <Button variant="primary">Click Me</Button>
+    </Card>
   );
 }
 ```
 
-## Optimized Component Imports
-
-For better performance, you can import individual components directly:
+### Using ThemeProvider
 
 ```jsx
-// Import specific components (smaller bundles)
-import Button from 'clipper-ui/dist/components/Button';
-import Table from 'clipper-ui/dist/components/Table';
-import TextField from 'clipper-ui/dist/components/TextField';
+import { ThemeProvider, Button, Card } from 'clipper-ui';
 
-// Instead of importing from the main bundle (larger)
-// import { Button, Table, TextField } from 'clipper-ui';
+function App() {
+  return (
+    <ThemeProvider theme="light">
+      <Card>
+        <Button variant="primary">Light Theme Button</Button>
+      </Card>
+    </ThemeProvider>
+  );
+}
 ```
-
-### Bundle Size Comparison
-
-| Import Method | Size |
-|---------------|------|
-| Full Library | ~84KB |
-| Table Component Only | ~16KB |
-| Button Component Only | ~4KB |
-
-## Core Components
-
-Clipper UI includes a wide range of components:
-
-### Layout
-- `Container` - Responsive container with maxWidth control
-- `Grid` - Powerful 12-column grid system (Row/Col)
-
-### Form Controls
-- `Button` - Multiple variants, sizes, and states
-- `TextField` - Text input with validation
-- `Checkbox` - Custom checkbox with label
-- `Radio` - Radio button groups
-- `Select` - Dropdown selection
-- `Switch` - Toggle switch control
-
-### Data Display
-- `Table` - Feature-rich data table with sorting and pagination
-- `Calendar` - Date selection and display
-- `DatePicker` - Date selection with popover
-- `TimePicker` - Time selection interface
-
-### Feedback & Overlays
-- `Dialog` - Modal dialogs and alerts
-- `Avatar` - User avatar display
-
-### Utilities
-- `ThemeProvider` - Theme context provider
-- `Link` - Enhanced anchor element
 
 ## Documentation
 
-For detailed documentation on each component, please refer to:
+Each component in Clipper UI comes with its own detailed README documentation file that includes:
 
-- [Grid System Documentation](docs/grid-system.md)
-- [Table Component Documentation](docs/table-component.md)
-- [Form Controls Documentation](docs/form-controls.md)
+- **Component API**: Detailed props and options
+- **Usage Examples**: Common use cases with code samples
+- **Accessibility Guidelines**: WCAG compliance information and best practices
+- **Keyboard Navigation**: Key commands and focus management details
+- **Best Practices**: Recommendations for effective use
+
+You can find these files in each component's directory:
+`src/components/ComponentName/README.md`
+
+For comprehensive documentation with live examples, run the Storybook:
+
+```bash
+npm run storybook
+# or
+yarn storybook
+```
+
+## Accessibility Features
+
+Clipper UI is built with accessibility at its core:
+
+- **Keyboard Navigation**: All interactive components can be used with keyboard alone
+- **Screen Reader Support**: ARIA attributes and semantic HTML support assistive technologies
+- **Focus Management**: Visible focus indicators and logical tab order
+- **Color Contrast**: All components meet WCAG AA contrast requirements
+- **Reduced Motion**: Support for users who prefer reduced motion
+- **Form Validation**: Accessible error states and announcements
+- **Responsive Design**: Components work across all device sizes
+
+## Component Categories
+
+### Core Components
+
+- **Button**: Standard button with multiple variants and sizes
+- **Card**: Content container with flexible layout options
+- **Typography**: Text component with various styles and options
+- **Link**: Navigation component with customization options
+- **Icon**: Collection of common icons with customization
+
+### Form Components
+
+- **TextField**: Text input field with validation support
+- **Select**: Dropdown selection component
+- **Checkbox**: Selectable checkbox component
+- **Radio**: Radio button component for single selection
+- **Switch**: Toggle switch component
+- **FormControl**: Wrapper for form elements with validation context
+- **FormLabel**: Accessible form labels with required/optional indicators
+- **FormErrorMessage**: Error messaging for form validation
+- **FormHelperText**: Additional guidance for form fields
+
+### Layout Components
+
+- **Grid**: Responsive grid layout system with rows and columns
+- **Container**: Content container with responsive padding
+- **Divider**: Horizontal or vertical divider line
+
+### Feedback Components
+
+- **Toast**: Temporary notification messages
+- **Dialog**: Modal dialog for confirmations and interactions
+- **Alert**: Status messages with various severity levels
+- **ProgressIndicator**: Loading states and progress visualization
+
+### Navigation Components
+
+- **Breadcrumbs**: Page location indicator
+- **Tabs**: Content organization with tab navigation
+- **Pagination**: Page navigation controls
+- **Menu**: Dropdown menu for navigation and actions
+
+### Data Display Components
+
+- **Table**: Data table with sorting and pagination
+- **Tag**: Content labeling and categorization
+- **Badge**: Numerical indicators and status markers
+- **Avatar**: User profile image representation
+- **Tooltip**: Additional information on hover
 
 ## Development
 
-### Project Structure
+### Prerequisites
+
+- Node.js (v16+)
+- npm or yarn
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/clipper-ui.git
+   cd clipper-ui
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
+
+3. Start the development environment:
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+4. Run Storybook for component development:
+   ```bash
+   npm run storybook
+   # or
+   yarn storybook
+   ```
+
+### Creating a New Component
+
+Use the generate script to create a new component with all required files:
+
+```bash
+npm run generate ComponentName
+# or
+yarn generate ComponentName
+```
+
+This will create:
+- `src/components/ComponentName/ComponentName.tsx` - Component implementation
+- `src/components/ComponentName/index.ts` - Export file
+- `src/components/ComponentName/ComponentName.stories.tsx` - Storybook documentation
+- `src/components/ComponentName/ComponentName.test.tsx` - Unit tests
+- `src/components/ComponentName/README.md` - Component documentation
+
+### Building
+
+```bash
+npm run build:all
+# or
+yarn build:all
+```
+
+### Testing
+
+```bash
+npm run test
+# or
+yarn test
+```
+
+For coverage reports:
+
+```bash
+npm run test:coverage
+# or
+yarn test:coverage
+```
+
+### Documentation
+
+Generate README files for all components:
+
+```bash
+npm run generate:readmes
+# or
+yarn generate:readmes
+```
+
+### Linting
+
+```bash
+npm run lint
+# or
+yarn lint
+```
+
+### Bundle Size Analysis
+
+```bash
+npm run check:bundle
+# or
+yarn check:bundle
+```
+
+## Project Structure
 
 ```
 clipper-ui/
-├── dist/               # Built distribution files
-│   ├── components/     # Component-specific builds
-│   ├── index.js        # CJS bundle
-│   └── index.esm.js    # ESM bundle
+├── dist/               # Built library output
 ├── src/
-│   ├── components/     # React components
-│   ├── styles/         # Global styles & themes
-│   └── utils/          # Utility functions
-├── scripts/            # Build scripts
-└── docs/               # Documentation
+│   ├── components/     # Component definitions
+│   │   ├── Button/
+│   │   ├── Card/
+│   │   └── ...
+│   ├── utils/          # Utility functions
+│   └── index.ts        # Main export file
+├── scripts/            # Build and utility scripts
+│   ├── templates/      # Component templates
+│   └── ...
+├── .storybook/         # Storybook configuration
+├── docs/               # Design system documentation
+└── ...
 ```
 
-### Build Commands
+## Contribution Guidelines
 
-```bash
-# Build the entire library (full bundle + component-specific builds)
-npm run build:all
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/my-feature`
+3. Commit your changes: `git commit -m 'Add some feature'`
+4. Push to the branch: `git push origin feature/my-feature`
+5. Submit a pull request
 
-# Build only component-specific bundles
-npm run build:components
+### Contribution Standards
 
-# Build only the main library bundle
-npm run build:lib
+- Follow the existing code style and naming conventions
+- Write tests for new components and features
+- Document your components with Storybook stories and README files
+- Ensure accessibility standards are met with WCAG AA compliance
+- Keep bundle size in mind - avoid large dependencies
+- Test for cross-browser compatibility
 
-# Development mode with hot reloading
-npm run dev
+### Accessibility Requirements
 
-# Run Storybook
-npm run storybook
-```
+All contributions must:
+- Support keyboard navigation
+- Include appropriate ARIA attributes
+- Maintain proper focus management
+- Provide adequate color contrast
+- Work with screen readers
+- Include documentation on accessibility features
 
-## Performance Optimizations
+### Development Workflow
 
-Clipper UI includes several performance optimizations:
-
-1. **Component-Specific Builds**
-   - Each component is built separately for optimal tree-shaking
-   - CommonJS and ESM bundles with full TypeScript support
-   - Significantly smaller bundle sizes for selective imports
-
-2. **Runtime Optimizations**
-   - React.memo for complex components
-   - Debounced event handlers
-   - Virtualization for large datasets (Table component)
-
-3. **Developer Tools**
-   - Performance monitoring utilities
-   - Bundle size analysis
-   - Component benchmarking
-
-For detailed information on performance features, see our [Performance Guide](docs/performance-optimizations.md).
-
-## Browser Support
-
-Clipper UI supports all modern browsers:
-
-- Chrome (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Edge (latest 2 versions)
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+1. Create a new component using the generator: `npm run generate ComponentName`
+2. Implement the component functionality
+3. Write comprehensive tests
+4. Create Storybook documentation
+5. Update the component README with usage examples and accessibility guidelines
+6. Run validation before submitting: `npm run validate`
 
 ## License
 
-MIT © [Your Organization]
+MIT © [Your Company]

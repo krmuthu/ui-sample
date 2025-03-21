@@ -51,3 +51,4 @@ export { getVersion, getVersionInfo, getFormattedVersion } from './utils/version
 
 // Theme
 export { default as theme, getThemeColor } from './utils/theme'; 
+export { Badge } from './components/Badge/Badge';

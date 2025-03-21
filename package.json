@@ -49,7 +49,15 @@
     "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens",
     "version:info": "node scripts/version.js",
     "test:build": "node scripts/test-build.js",
-    "perf:test": "node scripts/perf-test.js"
+    "perf:test": "node scripts/perf-test.js",
+    "generate": "node scripts/generate-component.js",
+    "generate:readmes": "node scripts/generate-component-readmes.js",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "build:analyze": "cross-env ANALYZE=true npm run build:lib:prod",
+    "validate": "npm run lint && npm run test && npm run build:lib",
+    "check:types": "tsc --noEmit",
+    "check:bundle": "node scripts/check-bundle-size.js"
   },
   "dependencies": {
     "clsx": "^2.1.1",

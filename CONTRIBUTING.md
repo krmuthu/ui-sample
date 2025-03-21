@@ -7,148 +7,364 @@ Thank you for your interest in contributing to Clipper UI! This document provide
 - [Code of Conduct](#code-of-conduct)
 - [Getting Started](#getting-started)
 - [Development Workflow](#development-workflow)
+- [Component Development Guidelines](#component-development-guidelines)
+- [Accessibility Requirements](#accessibility-requirements)
 - [Pull Request Process](#pull-request-process)
-- [Adding a New Component](#adding-a-new-component)
-- [Coding Standards](#coding-standards)
-- [Testing Guidelines](#testing-guidelines)
+- [Commit Guidelines](#commit-guidelines)
 - [Documentation](#documentation)
+- [Testing](#testing)
+- [Release Process](#release-process)
 
 ## Code of Conduct
 
-We expect all contributors to adhere to our Code of Conduct. Please read [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) before contributing.
+Please read and follow our [Code of Conduct](CODE_OF_CONDUCT.md) to maintain a respectful and inclusive environment for everyone.
 
 ## Getting Started
 
-1. **Fork the repository** on GitHub
-2. **Clone your fork** locally
+### Prerequisites
+
+- Node.js (v16+)
+- npm or yarn
+- Git
+
+### Setup
+
+1. Fork the repository on GitHub
+2. Clone your fork locally:
    ```bash
    git clone https://github.com/YOUR-USERNAME/clipper-ui.git
    cd clipper-ui
    ```
-3. **Install dependencies**
-   ```bash
-   npm install
-   ```
-4. **Set up remote upstream**
+3. Add the original repository as a remote to keep your fork in sync:
    ```bash
    git remote add upstream https://github.com/original-owner/clipper-ui.git
+   ```
+4. Install dependencies:
+   ```bash
+   npm install
+   # or
+   yarn
+   ```
+5. Create a new branch for your feature or fix:
+   ```bash
+   git checkout -b feature/your-feature-name
    ```
 
 ## Development Workflow
 
-1. **Create a new branch** for your feature or bugfix
+1. **Component Generation**: Use our generator to create new component files:
    ```bash
-   git checkout -b feature/your-feature-name
-   ```
-   or
-   ```bash
-   git checkout -b fix/your-bugfix-name
+   npm run generate ComponentName
+   # or
+   yarn generate ComponentName
    ```
 
-2. **Start the development server**
+2. **Development Server**: Run the development server to see changes in real-time:
    ```bash
    npm run dev
+   # or
+   yarn dev
    ```
 
-3. **Start Storybook** to develop and test components
+3. **Storybook**: Develop and test components in isolation:
    ```bash
    npm run storybook
+   # or
+   yarn storybook
    ```
 
-4. **Make your changes** following our coding standards
+4. **Linting**: Ensure your code follows our style guidelines:
+   ```bash
+   npm run lint
+   # or
+   yarn lint
+   ```
 
-5. **Test your changes**
+5. **Testing**: Write and run tests for your components:
    ```bash
    npm run test
+   # or
+   yarn test
    ```
 
-6. **Build the library** to ensure your changes work in the final output
+6. **Documentation**: Update or create documentation for your components:
    ```bash
-   npm run build:all
+   npm run generate:readmes
+   # or
+   yarn generate:readmes
    ```
+
+## Component Development Guidelines
+
+### Directory Structure
+
+Each component should be structured as follows:
+
+```
+src/components/ComponentName/
+├── ComponentName.tsx       # Main component implementation
+├── ComponentName.test.tsx  # Test file
+├── ComponentName.stories.tsx  # Storybook file
+├── README.md               # Component documentation
+└── index.ts                # Export file
+```
+
+### Component Implementation
+
+- Use TypeScript for type safety
+- Use functional components with hooks
+- Follow the project's naming conventions
+- Implement proper keyboard navigation and focus management
+- Support all required accessibility features
+- Follow the design system's visual guidelines
+- Ensure components are responsive
+
+### Code Style
+
+- Follow the existing code style in the project
+- Use consistent naming conventions
+- Use comments to explain complex logic
+- Keep components focused and maintainable
+- Use appropriate TypeScript types
+- Optimize for performance where needed
+
+### TypeScript Guidelines
+
+- Define proper interfaces for component props
+- Export these interfaces for consumer use
+- Use appropriate type annotations
+- Avoid using `any` type
+- Use generics where appropriate
+- Use discriminated unions for complex state
+
+Example:
+
+```tsx
+export interface ButtonProps {
+  variant?: 'primary' | 'secondary' | 'tertiary';
+  size?: 'sm' | 'md' | 'lg';
+  isDisabled?: boolean;
+  children: React.ReactNode;
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+  className?: string;
+}
+
+export const Button: React.FC<ButtonProps> = ({
+  variant = 'primary',
+  size = 'md',
+  isDisabled = false,
+  children,
+  onClick,
+  className,
+  ...rest
+}) => {
+  // Component implementation
+};
+```
+
+## Accessibility Requirements
+
+Accessibility is a core requirement for all components in Clipper UI. Each component must:
+
+### Keyboard Navigation
+
+- Be fully operable using only a keyboard
+- Have logical tab order
+- Support expected keyboard shortcuts (Enter/Space for buttons, Esc for dialogs, etc.)
+- Implement focus trapping where appropriate (modals, menus)
+- Have visible focus indicators
+
+### Screen Reader Support
+
+- Use semantic HTML elements where possible
+- Include appropriate ARIA roles, states, and properties
+- Ensure meaningful text alternatives for non-text content
+- Announce state changes to screen readers
+- Test with at least one screen reader (NVDA, JAWS, VoiceOver)
+
+### Visual Considerations
+
+- Maintain sufficient color contrast (WCAG Level AA - 4.5:1 for normal text)
+- Don't rely solely on color to convey information
+- Support different viewport sizes and zoom levels
+- Consider users with different visual abilities
+- Support reduced motion preferences
+
+### Testing Requirements
+
+- Test keyboard navigation
+- Verify screen reader announcements
+- Check color contrast
+- Test with magnification
+- Validate ARIA attributes
+
+For more detailed guidance, refer to our [Accessibility Guide](docs/ACCESSIBILITY.md).
 
 ## Pull Request Process
 
-1. **Update your fork** with the latest upstream changes
+1. **Update your fork**: Sync your fork with the upstream repository:
    ```bash
    git fetch upstream
+   git checkout main
    git merge upstream/main
+   git checkout your-branch-name
+   git rebase main
    ```
 
-2. **Push your changes** to your fork
+2. **Create your PR**: Push your changes and create a pull request:
    ```bash
-   git push origin feature/your-feature-name
+   git push origin your-branch-name
    ```
 
-3. **Create a pull request** from your branch to the main repository
+3. **PR Description**: Include a comprehensive description of your changes:
+   - What problem does this PR solve?
+   - How does it solve the problem?
+   - Are there any alternative solutions?
+   - What accessibility considerations have been addressed?
 
-4. **Follow the PR template** and provide detailed information about your changes
+4. **Review Process**: All PRs need at least one approval from a maintainer.
 
-5. **Address review comments** and make necessary changes
+5. **Continuous Integration**: All automated tests must pass.
 
-6. **Wait for approval** from maintainers
+6. **Requested Changes**: Address any feedback or requested changes promptly.
 
-## Adding a New Component
+## Commit Guidelines
 
-When adding a new component to the library:
-
-1. Create a new directory in `src/components/YourComponentName/`
-2. Component files should include:
-   - `YourComponentName.tsx` - Main component
-   - `YourComponentName.test.tsx` - Tests
-   - `YourComponentName.stories.tsx` - Storybook stories
-   - `index.ts` - Exports
-
-Example component structure:
+We use conventional commits to maintain a clean and meaningful commit history:
 
 ```
-src/components/Button/
-├── Button.tsx
-├── Button.test.tsx
-├── Button.stories.tsx
-└── index.ts
+<type>(<scope>): <description>
+
+[optional body]
+
+[optional footer(s)]
 ```
 
-3. Follow the component structure pattern used in existing components
-4. Add comprehensive tests and Storybook stories
-5. Document props and examples
-6. Build and test with the component build system
+Types:
+- **feat**: A new feature
+- **fix**: A bug fix
+- **docs**: Documentation-only changes
+- **style**: Changes that don't affect the meaning of the code
+- **refactor**: Code changes that neither fix a bug nor add a feature
+- **perf**: Performance improvements
+- **test**: Adding or fixing tests
+- **chore**: Changes to the build process or auxiliary tools
 
-## Coding Standards
+Example:
+```
+feat(button): add disabled state styling
 
-We follow strict coding standards to maintain consistency:
+Add styling for disabled state to improve accessibility
+and provide better visual feedback to users.
 
-- Use TypeScript for all components and utilities
-- Follow our ESLint and Prettier configurations
-- Write functional components with React hooks
-- Use proper type definitions for all props and functions
-- Keep components focused on a single responsibility
-- Follow accessibility best practices
-
-## Testing Guidelines
-
-All new code should be properly tested:
-
-- Write unit tests for all components and utilities
-- Test edge cases and accessibility
-- Ensure tests pass before submitting a PR
-- Maintain or improve code coverage
-
-Run tests with:
-
-```bash
-npm run test
+Closes #123
 ```
 
 ## Documentation
 
-Good documentation is crucial:
+Documentation is crucial for the usability of our component library:
 
-- Document all props using JSDoc comments
-- Create or update Storybook stories
-- Update relevant documentation files
-- For significant changes, update the README.md
+### Component Documentation
 
----
+Each component should have a README.md file that includes:
 
-Thank you for contributing to Clipper UI! If you have any questions, feel free to reach out to the maintainers. 
+1. **Overview**: A brief description of the component
+2. **Installation**: How to install the component
+3. **Usage**: Basic usage examples
+4. **Props**: Detailed props table with types, defaults, and descriptions
+5. **Examples**: Various examples demonstrating different use cases
+6. **Accessibility**: Accessibility features and considerations
+7. **Best Practices**: Guidelines for effective use
+
+### Storybook Documentation
+
+Storybook stories should demonstrate:
+
+1. **Basic usage**: Default component rendering
+2. **Variants**: Different visual styles and variants
+3. **Sizes**: Different size options if applicable
+4. **States**: Various states (hover, active, disabled, etc.)
+5. **Examples**: Real-world usage examples
+6. **Accessibility**: Accessibility features with notes
+
+## Testing
+
+We value comprehensive testing to ensure component quality:
+
+### Unit Testing
+
+- Write tests for all components using Vitest and Testing Library
+- Test component rendering
+- Test props and their effects
+- Test user interactions
+- Test keyboard navigation
+- Test accessibility requirements
+
+Example:
+
+```tsx
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Button } from './Button';
+
+describe('Button', () => {
+  it('renders correctly', () => {
+    render(<Button>Click me</Button>);
+    expect(screen.getByRole('button')).toHaveTextContent('Click me');
+  });
+
+  it('handles click events', () => {
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    fireEvent.click(screen.getByRole('button'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('is accessible with keyboard', () => {
+    const handleClick = vi.fn();
+    render(<Button onClick={handleClick}>Click me</Button>);
+    
+    const button = screen.getByRole('button');
+    button.focus();
+    expect(document.activeElement).toBe(button);
+    
+    fireEvent.keyDown(button, { key: 'Enter' });
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+});
+```
+
+### Visual Testing
+
+- Use Storybook for visual testing
+- Consider adding visual regression tests
+- Review component appearance across different viewports
+
+### Accessibility Testing
+
+- Use axe-react for automated accessibility testing
+- Test keyboard navigation manually
+- Test with screen readers
+- Verify color contrast
+
+## Release Process
+
+Our release process follows these steps:
+
+1. **Version Bump**: Update version in package.json
+2. **Changelog**: Update CHANGELOG.md with new features and fixes
+3. **Build**: Create a production build
+4. **Tests**: Run all tests
+5. **Documentation**: Update documentation if needed
+6. **Release**: Publish to npm
+7. **Tags**: Create a git tag for the release
+8. **Announcement**: Announce the release in appropriate channels
+
+## Questions and Support
+
+If you have questions or need help, please:
+
+1. Check our documentation
+2. Search for existing issues
+3. Create a new issue if needed
+
+Thank you for contributing to Clipper UI! Your efforts help make this library better for everyone. 
