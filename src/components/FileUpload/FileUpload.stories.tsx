@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
-import { FileUpload, FileItem, FileType } from './FileUpload';
+import { FileUpload, FileItem } from './FileUpload';
 
 const meta: Meta<typeof FileUpload> = {
   title: 'Components/FileUpload',
@@ -14,17 +14,49 @@ const meta: Meta<typeof FileUpload> = {
 export default meta;
 type Story = StoryObj<typeof FileUpload>;
 
-// Basic example with controlled state
-const BasicExample = () => {
-  const [selectedType, setSelectedType] = useState<FileType>('image');
+// Basic document upload example
+const DocumentUploadExample = () => {
   const [files, setFiles] = useState<FileItem[]>([]);
   
   const handleFilesAdded = (newFiles: File[]) => {
     const newFileItems: FileItem[] = newFiles.map(file => ({
       id: Math.random().toString(36).substring(2, 15),
       file,
-      type: selectedType,
-      preview: selectedType === 'image' ? URL.createObjectURL(file) : undefined,
+      type: 'document',
+    }));
+    
+    setFiles(prev => [...prev, ...newFileItems]);
+  };
+  
+  const handleFileRemove = (fileId: string) => {
+    setFiles(prev => prev.filter(f => f.id !== fileId));
+  };
+  
+  return (
+    <div className="w-full max-w-2xl p-4">
+      <h3 className="text-lg font-medium mb-3">Document Upload</h3>
+      <FileUpload
+        selectedType="document"
+        files={files}
+        onFilesAdded={handleFilesAdded}
+        onFileRemove={handleFileRemove}
+        maxFiles={5}
+        helperText="Upload document files only (.pdf, .doc, .docx, etc.)"
+      />
+    </div>
+  );
+};
+
+// Image upload example
+const ImageUploadExample = () => {
+  const [files, setFiles] = useState<FileItem[]>([]);
+  
+  const handleFilesAdded = (newFiles: File[]) => {
+    const newFileItems: FileItem[] = newFiles.map(file => ({
+      id: Math.random().toString(36).substring(2, 15),
+      file,
+      type: 'image',
+      preview: URL.createObjectURL(file),
     }));
     
     setFiles(prev => [...prev, ...newFileItems]);
@@ -43,14 +75,13 @@ const BasicExample = () => {
   
   return (
     <div className="w-full max-w-2xl p-4">
+      <h3 className="text-lg font-medium mb-3">Image Upload</h3>
       <FileUpload
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
+        selectedType="image"
         files={files}
         onFilesAdded={handleFilesAdded}
         onFileRemove={handleFileRemove}
-        maxFiles={5}
-        helperText="Upload up to 5 files, max 10MB each"
+        helperText="Upload image files only (.jpg, .png, .gif, etc.)"
       />
     </div>
   );
@@ -58,15 +89,13 @@ const BasicExample = () => {
 
 // Example with upload simulation
 const UploadSimulationExample = () => {
-  const [selectedType, setSelectedType] = useState<FileType>('any');
   const [files, setFiles] = useState<FileItem[]>([]);
   
   const handleFilesAdded = (newFiles: File[]) => {
     const newFileItems: FileItem[] = newFiles.map(file => ({
       id: Math.random().toString(36).substring(2, 15),
       file,
-      type: selectedType,
-      preview: selectedType === 'image' ? URL.createObjectURL(file) : undefined,
+      type: 'document',
       uploading: true,
       progress: 0,
     }));
@@ -95,20 +124,14 @@ const UploadSimulationExample = () => {
   };
   
   const handleFileRemove = (fileId: string) => {
-    setFiles(prev => {
-      const fileToRemove = prev.find(f => f.id === fileId);
-      if (fileToRemove?.preview) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-      return prev.filter(f => f.id !== fileId);
-    });
+    setFiles(prev => prev.filter(f => f.id !== fileId));
   };
   
   return (
     <div className="w-full max-w-2xl p-4">
+      <h3 className="text-lg font-medium mb-3">Document Upload with Progress</h3>
       <FileUpload
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
+        selectedType="document"
         files={files}
         onFilesAdded={handleFilesAdded}
         onFileRemove={handleFileRemove}
@@ -120,7 +143,6 @@ const UploadSimulationExample = () => {
 
 // Example with error handling
 const ErrorHandlingExample = () => {
-  const [selectedType, setSelectedType] = useState<FileType>('document');
   const [files, setFiles] = useState<FileItem[]>([]);
   const [error, setError] = useState<string | undefined>(undefined);
   
@@ -139,7 +161,7 @@ const ErrorHandlingExample = () => {
     const newFileItems: FileItem[] = newFiles.map(file => ({
       id: Math.random().toString(36).substring(2, 15),
       file,
-      type: selectedType,
+      type: 'document',
     }));
     
     setFiles(prev => [...prev, ...newFileItems]);
@@ -154,9 +176,9 @@ const ErrorHandlingExample = () => {
   
   return (
     <div className="w-full max-w-2xl p-4">
+      <h3 className="text-lg font-medium mb-3">Document Upload with Size Validation</h3>
       <FileUpload
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
+        selectedType="document"
         files={files}
         onFilesAdded={handleFilesAdded}
         onFileRemove={handleFileRemove}
@@ -170,37 +192,29 @@ const ErrorHandlingExample = () => {
 
 // Example with custom dropzone content
 const CustomDropzoneExample = () => {
-  const [selectedType, setSelectedType] = useState<FileType>('image');
   const [files, setFiles] = useState<FileItem[]>([]);
   
   const handleFilesAdded = (newFiles: File[]) => {
     const newFileItems: FileItem[] = newFiles.map(file => ({
       id: Math.random().toString(36).substring(2, 15),
       file,
-      type: selectedType,
-      preview: selectedType === 'image' ? URL.createObjectURL(file) : undefined,
+      type: 'document',
     }));
     
     setFiles(prev => [...prev, ...newFileItems]);
   };
   
   const handleFileRemove = (fileId: string) => {
-    setFiles(prev => {
-      const fileToRemove = prev.find(f => f.id === fileId);
-      if (fileToRemove?.preview) {
-        URL.revokeObjectURL(fileToRemove.preview);
-      }
-      return prev.filter(f => f.id !== fileId);
-    });
+    setFiles(prev => prev.filter(f => f.id !== fileId));
   };
   
   const customDropzoneContent = (
     <div className="text-center">
       <div className="p-4 bg-blue-50 rounded-lg">
         <svg className="mx-auto h-12 w-12 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
         </svg>
-        <h3 className="mt-2 text-sm font-medium text-blue-800">Upload your images</h3>
+        <h3 className="mt-2 text-sm font-medium text-blue-800">Upload Documents</h3>
         <p className="mt-1 text-xs text-blue-700">Drag and drop or click to browse</p>
       </div>
     </div>
@@ -208,9 +222,9 @@ const CustomDropzoneExample = () => {
   
   return (
     <div className="w-full max-w-2xl p-4">
+      <h3 className="text-lg font-medium mb-3">Custom Document Upload</h3>
       <FileUpload
-        selectedType={selectedType}
-        onTypeChange={setSelectedType}
+        selectedType="document"
         files={files}
         onFilesAdded={handleFilesAdded}
         onFileRemove={handleFileRemove}
@@ -220,106 +234,35 @@ const CustomDropzoneExample = () => {
   );
 };
 
-// Example without type dropdown
-const FixedTypeExample = () => {
-  const [files, setFiles] = useState<FileItem[]>([]);
-  
-  const handleFilesAdded = (newFiles: File[]) => {
-    const newFileItems: FileItem[] = newFiles.map(file => ({
-      id: Math.random().toString(36).substring(2, 15),
-      file,
-      type: 'document',
-    }));
-    
-    setFiles(prev => [...prev, ...newFileItems]);
-  };
-  
-  const handleFileRemove = (fileId: string) => {
-    setFiles(prev => prev.filter(f => f.id !== fileId));
-  };
-  
-  return (
-    <div className="w-full max-w-2xl p-4">
-      <h3 className="text-lg font-medium mb-3">Document Upload</h3>
-      <FileUpload
-        selectedType="document"
-        files={files}
-        onFilesAdded={handleFilesAdded}
-        onFileRemove={handleFileRemove}
-        showTypeDropdown={false}
-        helperText="Upload document files only (.pdf, .doc, etc.)"
-      />
-    </div>
-  );
+export const DocumentUpload: Story = {
+  render: () => <DocumentUploadExample />,
 };
 
-// Simple example with fixed document type and no dropdown
-const SimpleDocumentUploadExample = () => {
-  const [files, setFiles] = useState<FileItem[]>([]);
-  
-  const handleFilesAdded = (newFiles: File[]) => {
-    const newFileItems: FileItem[] = newFiles.map(file => ({
-      id: Math.random().toString(36).substring(2, 15),
-      file,
-      type: 'document',
-    }));
-    
-    setFiles(prev => [...prev, ...newFileItems]);
-  };
-  
-  const handleFileRemove = (fileId: string) => {
-    setFiles(prev => prev.filter(f => f.id !== fileId));
-  };
-  
-  return (
-    <div className="w-full max-w-2xl p-4">
-      <h3 className="text-lg font-medium mb-3">Document Upload</h3>
-      <FileUpload
-        selectedType="document"
-        files={files}
-        onFilesAdded={handleFilesAdded}
-        onFileRemove={handleFileRemove}
-        showTypeDropdown={false}
-        helperText="Upload document files only (.pdf, .doc, etc.)"
-      />
-    </div>
-  );
+export const ImageUpload: Story = {
+  render: () => <ImageUploadExample />,
 };
 
-export const Basic: Story = {
-  render: () => <BasicExample />,
-};
-
-export const UploadSimulation: Story = {
+export const UploadWithProgress: Story = {
   render: () => <UploadSimulationExample />,
 };
 
-export const ErrorHandling: Story = {
+export const WithErrorHandling: Story = {
   render: () => <ErrorHandlingExample />,
 };
 
-export const CustomDropzone: Story = {
+export const WithCustomDropzone: Story = {
   render: () => <CustomDropzoneExample />,
-};
-
-export const FixedType: Story = {
-  render: () => <FixedTypeExample />,
-};
-
-export const SimpleDocumentUpload: Story = {
-  render: () => <SimpleDocumentUploadExample />,
 };
 
 export const Disabled: Story = {
   render: () => {
-    const [selectedType, setSelectedType] = useState<FileType>('document');
     const [files] = useState<FileItem[]>([]);
     
     return (
       <div className="w-full max-w-2xl p-4">
+        <h3 className="text-lg font-medium mb-3">Disabled Document Upload</h3>
         <FileUpload
-          selectedType={selectedType}
-          onTypeChange={setSelectedType}
+          selectedType="document"
           files={files}
           onFilesAdded={() => {}}
           onFileRemove={() => {}}

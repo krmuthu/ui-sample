@@ -69,21 +69,9 @@ export interface FileUploadProps {
   selectedType: FileType;
   
   /**
-   * Callback when file type changes
-   * Only required when showTypeDropdown is true
-   */
-  onTypeChange?: (type: FileType) => void;
-  
-  /**
    * Available file type options
    */
   typeOptions?: FileTypeOption[];
-  
-  /**
-   * Whether to show the file type dropdown
-   * @default true
-   */
-  showTypeDropdown?: boolean;
   
   /**
    * Files that have been uploaded
@@ -212,9 +200,7 @@ const formatFileSize = (bytes: number): string => {
 
 export const FileUpload: React.FC<FileUploadProps> = ({
   selectedType,
-  onTypeChange = () => {},
   typeOptions = DEFAULT_TYPE_OPTIONS,
-  showTypeDropdown = true,
   files = [],
   onFilesAdded,
   onFileRemove,
@@ -228,9 +214,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   helperText,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
   
   // Find the current file type option
   const selectedTypeOption = typeOptions.find(option => option.value === selectedType) || typeOptions[0];
@@ -323,32 +307,6 @@ export const FileUpload: React.FC<FileUploadProps> = ({
     fileInputRef.current?.click();
   };
   
-  // Handle type dropdown toggle
-  const handleTypeToggle = () => {
-    if (disabled) return;
-    setIsTypeDropdownOpen(!isTypeDropdownOpen);
-  };
-  
-  // Handle type selection
-  const handleTypeSelect = (type: FileType) => {
-    onTypeChange(type);
-    setIsTypeDropdownOpen(false);
-  };
-  
-  // Close dropdown when clicking outside
-  React.useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsTypeDropdownOpen(false);
-      }
-    };
-    
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-  
   // Determine if we should show the file limit warning
   const reachedFileLimit = files.length >= maxFiles;
   
@@ -374,93 +332,32 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   
   return (
     <div className={clsx('space-y-4', className)}>
-      {/* File type dropdown and upload area */}
-      <div className="flex flex-col sm:flex-row gap-2">
-        {showTypeDropdown && (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              type="button"
-              className={clsx(
-                'flex items-center justify-between w-full sm:w-48 px-4 py-2 border rounded-md shadow-sm text-sm',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500',
-                disabled 
-                  ? 'bg-gray-100 text-gray-500 cursor-not-allowed' 
-                  : 'bg-white text-gray-700 hover:bg-gray-50'
-              )}
-              onClick={handleTypeToggle}
-              disabled={disabled}
-              aria-haspopup="listbox"
-              aria-expanded={isTypeDropdownOpen}
-            >
-              <div className="flex items-center">
-                <span className="mr-2">{selectedTypeOption.icon}</span>
-                <span>{selectedTypeOption.label}</span>
-              </div>
-              <svg className="w-5 h-5 ml-2 -mr-1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
-              </svg>
-            </button>
-            
-            {isTypeDropdownOpen && (
-              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
-                <ul className="py-1 overflow-auto text-base max-h-60" role="listbox">
-                  {typeOptions.map(option => (
-                    <li
-                      key={option.value}
-                      className={clsx(
-                        'cursor-pointer select-none relative py-2 pl-3 pr-9 flex items-center',
-                        selectedType === option.value
-                          ? 'text-blue-900 bg-blue-50'
-                          : 'text-gray-900 hover:bg-gray-100'
-                      )}
-                      role="option"
-                      aria-selected={selectedType === option.value}
-                      onClick={() => handleTypeSelect(option.value)}
-                    >
-                      <span className="mr-2">{option.icon}</span>
-                      <span className="block truncate">{option.label}</span>
-                      
-                      {selectedType === option.value && (
-                        <span className="absolute inset-y-0 right-0 flex items-center pr-4 text-blue-600">
-                          <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                          </svg>
-                        </span>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            )}
-          </div>
+      {/* Upload area */}
+      <div
+        className={clsx(
+          'w-full border-2 border-dashed rounded-md p-4 flex justify-center items-center cursor-pointer',
+          isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50',
+          disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100',
+          error ? 'border-red-300' : ''
         )}
+        onDragEnter={handleDragEnter}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        onClick={handleDropzoneClick}
+        aria-disabled={disabled}
+      >
+        {dropzoneContent || defaultDropzoneContent}
         
-        <div
-          className={clsx(
-            'flex-1 border-2 border-dashed rounded-md p-4 flex justify-center items-center cursor-pointer',
-            isDragging ? 'border-blue-500 bg-blue-50' : 'border-gray-300 bg-gray-50',
-            disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100',
-            error ? 'border-red-300' : ''
-          )}
-          onDragEnter={handleDragEnter}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-          onDrop={handleDrop}
-          onClick={handleDropzoneClick}
-          aria-disabled={disabled}
-        >
-          {dropzoneContent || defaultDropzoneContent}
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            className="hidden"
-            accept={selectedTypeOption.accept}
-            multiple={multiple}
-            onChange={handleFileSelect}
-            disabled={disabled || reachedFileLimit}
-          />
-        </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          className="hidden"
+          accept={selectedTypeOption.accept}
+          multiple={multiple}
+          onChange={handleFileSelect}
+          disabled={disabled || reachedFileLimit}
+        />
       </div>
       
       {/* Error message */}
