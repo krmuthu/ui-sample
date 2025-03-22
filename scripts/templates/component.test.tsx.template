@@ -1,0 +1,96 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { {{ComponentName}} } from './{{ComponentName}}';
+
+describe('{{ComponentName}} Component', () => {
+  // Basic rendering test
+  it('renders correctly with default props', () => {
+    render(<{{ComponentName}}>Test Content</{{ComponentName}}>);
+    
+    const component = screen.getByText('Test Content');
+    expect(component).toBeInTheDocument();
+  });
+
+  // Props testing
+  it('applies variant classes correctly', () => {
+    const { rerender } = render(
+      <{{ComponentName}} variant="primary" data-testid="test-component">
+        Primary Variant
+      </{{ComponentName}}>
+    );
+    
+    let component = screen.getByTestId('test-component');
+    expect(component).toHaveClass('bg-blue-100');
+    
+    rerender(
+      <{{ComponentName}} variant="secondary" data-testid="test-component">
+        Secondary Variant
+      </{{ComponentName}}>
+    );
+    
+    component = screen.getByTestId('test-component');
+    expect(component).toHaveClass('bg-gray-100');
+  });
+
+  it('applies size classes correctly', () => {
+    const { rerender } = render(
+      <{{ComponentName}} size="sm" data-testid="test-component">
+        Small Size
+      </{{ComponentName}}>
+    );
+    
+    let component = screen.getByTestId('test-component');
+    expect(component).toHaveClass('p-2');
+    
+    rerender(
+      <{{ComponentName}} size="lg" data-testid="test-component">
+        Large Size
+      </{{ComponentName}}>
+    );
+    
+    component = screen.getByTestId('test-component');
+    expect(component).toHaveClass('p-4');
+  });
+
+  // Behavior testing
+  it('handles click events', () => {
+    const handleClick = jest.fn();
+    render(
+      <{{ComponentName}} onClick={handleClick} data-testid="test-component">
+        Clickable
+      </{{ComponentName}}>
+    );
+    
+    const component = screen.getByTestId('test-component');
+    fireEvent.click(component);
+    
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not trigger click events when disabled', () => {
+    const handleClick = jest.fn();
+    render(
+      <{{ComponentName}} onClick={handleClick} disabled data-testid="test-component">
+        Disabled
+      </{{ComponentName}}>
+    );
+    
+    const component = screen.getByTestId('test-component');
+    fireEvent.click(component);
+    
+    expect(handleClick).not.toHaveBeenCalled();
+    expect(component).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  // Accessibility testing
+  it('applies aria attributes correctly', () => {
+    render(
+      <{{ComponentName}} aria-label="Test label" data-testid="test-component">
+        Accessible
+      </{{ComponentName}}>
+    );
+    
+    const component = screen.getByTestId('test-component');
+    expect(component).toHaveAttribute('aria-label', 'Test label');
+  });
+}); 

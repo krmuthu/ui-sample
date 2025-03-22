@@ -202,6 +202,7 @@ export const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(({
           }
           required={required}
           data-testid={dataTestId}
+          data-indeterminate={indeterminate}
           {...rest}
         />
         

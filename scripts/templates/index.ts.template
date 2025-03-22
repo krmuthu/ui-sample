@@ -1,0 +1,8 @@
+export { {{ComponentName}} } from './{{ComponentName}}';
+export type { 
+  {{ComponentName}}Props, 
+  {{ComponentName}}Variant, 
+  {{ComponentName}}Size 
+} from './{{ComponentName}}';
+
+export default { {{ComponentName}} }; 

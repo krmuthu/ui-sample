@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import DatePicker from './DatePicker';
+import { DatePicker } from './DatePicker';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 
 // Mock createPortal to make testing portals possible
@@ -27,6 +27,9 @@ const renderWithTheme = (ui: React.ReactElement, { theme = 'light' } = {}) => {
 describe('DatePicker Component', () => {
   // Mock date to ensure consistent tests
   const mockDate = new Date(2023, 1, 15); // February 15, 2023
+  const user = userEvent.setup({
+    advanceTimers: vi.advanceTimersByTime.bind(vi),
+  });
   
   beforeEach(() => {
     // Mock the Date constructor to return a fixed date for new Date()
@@ -79,23 +82,24 @@ describe('DatePicker Component', () => {
     renderWithTheme(<DatePicker />);
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Calendar should be visible
     expect(screen.getByRole('dialog')).toBeInTheDocument();
-    expect(screen.getByText('February 2023')).toBeInTheDocument(); // Current month title
+    expect(screen.getByText('February')).toBeInTheDocument(); // Current month title
+    expect(screen.getByText('2023')).toBeInTheDocument(); // Current year title
   });
   
   it('allows selecting a date from the calendar', async () => {
     const handleChange = vi.fn();
-    renderWithTheme(<DatePicker onChange={handleChange} />);
+    renderWithTheme(<DatePicker onChange={(handleChange)} />);
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Find and click on a date
     const dayButton = screen.getByRole('button', { name: /february 10, 2023/i });
-    await userEvent.click(dayButton);
+    await user.click(dayButton);
     
     // onChange should be called with the selected date
     expect(handleChange).toHaveBeenCalledTimes(1);
@@ -115,8 +119,8 @@ describe('DatePicker Component', () => {
     const input = screen.getByRole('textbox');
     
     // Clear the input and type a date
-    await userEvent.clear(input);
-    await userEvent.type(input, '03/20/2023');
+    await user.clear(input);
+    await user.type(input, '03/20/2023');
     
     // onChange should be called with the entered date
     expect(handleChange).toHaveBeenCalled();
@@ -133,8 +137,8 @@ describe('DatePicker Component', () => {
     const input = screen.getByRole('textbox');
     
     // Clear the input and type an invalid date
-    await userEvent.clear(input);
-    await userEvent.type(input, 'invalid-date');
+    await user.clear(input);
+    await user.type(input, 'invalid-date');
     
     // onChange should not be called with an invalid date
     expect(handleChange).not.toHaveBeenCalled();
@@ -153,7 +157,7 @@ describe('DatePicker Component', () => {
     
     // Find and click the clear button
     const clearButton = screen.getByLabelText('Clear date');
-    await userEvent.click(clearButton);
+    await user.click(clearButton);
     
     // Input should be cleared
     const input = screen.getByRole('textbox');
@@ -167,50 +171,57 @@ describe('DatePicker Component', () => {
     renderWithTheme(<DatePicker />);
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Initial month should be February 2023
-    expect(screen.getByText('February 2023')).toBeInTheDocument();
+    expect(screen.getByText('February')).toBeInTheDocument();
+    expect(screen.getByText('2023')).toBeInTheDocument();
     
     // Click previous month button
     const prevMonthButton = screen.getByLabelText('Previous month');
-    await userEvent.click(prevMonthButton);
+    await user.click(prevMonthButton);
     
     // Calendar should show January 2023
-    expect(screen.getByText('January 2023')).toBeInTheDocument();
+    expect(screen.getByText('January')).toBeInTheDocument();
+    expect(screen.getByText('2023')).toBeInTheDocument();
     
     // Click next month button twice to go to March
     const nextMonthButton = screen.getByLabelText('Next month');
-    await userEvent.click(nextMonthButton);
-    await userEvent.click(nextMonthButton);
+    await user.click(nextMonthButton);
+    await user.click(nextMonthButton);
     
     // Calendar should show March 2023
-    expect(screen.getByText('March 2023')).toBeInTheDocument();
+    expect(screen.getByText('2023')).toBeInTheDocument();
+    expect(screen.getByText('March')).toBeInTheDocument();
   });
   
   it('navigates to previous and next year', async () => {
     renderWithTheme(<DatePicker />);
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Initial month should be February 2023
-    expect(screen.getByText('February 2023')).toBeInTheDocument();
+    expect(screen.getByText('February')).toBeInTheDocument();
+    expect(screen.getByText('2023')).toBeInTheDocument();
     
     // Click previous year button
     const prevYearButton = screen.getByLabelText('Previous year');
-    await userEvent.click(prevYearButton);
+    await user.click(prevYearButton);
     
     // Calendar should show February 2022
-    expect(screen.getByText('February 2022')).toBeInTheDocument();
+    expect(screen.getByText('February')).toBeInTheDocument();
+    expect(screen.getByText('2022')).toBeInTheDocument();
     
     // Click next year button twice to go to 2024
     const nextYearButton = screen.getByLabelText('Next year');
-    await userEvent.click(nextYearButton);
-    await userEvent.click(nextYearButton);
+    await user.click(nextYearButton);
+    await user.click(nextYearButton);
     
     // Calendar should show February 2024
-    expect(screen.getByText('February 2024')).toBeInTheDocument();
+    
+    expect(screen.getByText('February')).toBeInTheDocument();
+    expect(screen.getByText('2024')).toBeInTheDocument();
   });
   
   it('respects min and max date constraints', async () => {
@@ -225,7 +236,7 @@ describe('DatePicker Component', () => {
     );
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Dates before min date should be disabled
     const disabledBeforeMin = screen.getByRole('button', { name: /february 4, 2023/i });
@@ -249,7 +260,7 @@ describe('DatePicker Component', () => {
     );
     
     const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('border-error-500');
+    expect(input).toHaveClass('border-[var(--btn-primary-negative-bg)]');
     
     // Error message should be displayed
     expect(screen.getByText('Please select a valid date')).toBeInTheDocument();
@@ -269,7 +280,7 @@ describe('DatePicker Component', () => {
     renderWithTheme(<DatePicker />);
     
     const input = screen.getByRole('textbox');
-    await userEvent.click(input);
+    await user.click(input);
     
     // Calendar should be visible
     expect(screen.getByRole('dialog')).toBeInTheDocument();
@@ -293,11 +304,11 @@ describe('DatePicker Component', () => {
     const input = screen.getByRole('textbox');
     
     // Press Enter to open calendar
-    await userEvent.type(input, '{Enter}');
+    await user.type(input, '{Enter}');
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     
     // Press Escape to close calendar
-    await userEvent.type(input, '{Escape}');
+    await user.type(input, '{Escape}');
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 }); 

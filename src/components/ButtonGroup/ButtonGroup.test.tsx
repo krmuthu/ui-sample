@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import '@testing-library/jest-dom';
-import ButtonGroup from './ButtonGroup';
+import { ButtonGroup } from './ButtonGroup';
 import { Button } from '../Button';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 

@@ -33,7 +33,7 @@ describe('FormLabel', () => {
     // Check for the asterisk
     const asterisk = screen.getByText('*');
     expect(asterisk).toBeInTheDocument();
-    expect(asterisk).toHaveClass('text-[var(--btn-primary-negative-bg)]');
+    expect(asterisk).toHaveClass('text-red-500');
   });
 
   it('does not show an asterisk when required is false', () => {

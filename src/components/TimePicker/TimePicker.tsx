@@ -129,6 +129,12 @@ export interface TimePickerProps {
   closeOnSelect?: boolean;
   
   /**
+   * Whether to close the time selector when a time period am/pm is selected
+   * @default true
+   */
+  closeOnSelectPeriod?: boolean;
+  
+  /**
    * Callback for when the time selector opens
    */
   onOpen?: () => void;
@@ -404,7 +410,8 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   name,
   required = false,
   startIcon,
-  closeOnSelect = true,
+  closeOnSelect = false,
+  closeOnSelectPeriod = true,
   onOpen,
   onClose,
   disablePast = false,
@@ -659,7 +666,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       setInputValue(formatTime(date, displayFormat));
       touchedRef.current = true;
       
-      if (closeOnSelect) {
+      if (closeOnSelect || closeOnSelectPeriod) {
         setIsOpen(false);
         if (onClose) onClose();
       }
@@ -788,7 +795,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
       ref={dropdownRef}
       id={dropdownId}
       className={dropdownClasses}
-      role="dialog"
+      role="listbox"
       aria-modal="true"
       aria-labelledby={inputId}
       style={{

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Radio } from './Radio';
+import { vi } from 'vitest';
 
 describe('Radio Component', () => {
   it('should render a radio input', () => {
@@ -19,7 +20,7 @@ describe('Radio Component', () => {
   });
 
   it('should handle change events', () => {
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     render(<Radio onChange={handleChange} data-testid="radio" />);
     
     fireEvent.click(screen.getByTestId('radio'));
@@ -56,7 +57,7 @@ describe('Radio Component', () => {
   it('should handle error state', () => {
     render(<Radio error errorMessage="Error message" data-testid="radio" />);
     
-    expect(screen.getByTestId('radio')).toHaveClass('border-[var(--btn-primary-negative-bg)]');
+    expect(screen.getByTestId('radio')).toHaveClass('border-red-500');
     expect(screen.getByText('Error message')).toBeInTheDocument();
   });
 
@@ -79,7 +80,7 @@ describe('Radio Component', () => {
     const requiredIndicator = screen.getByText('*');
     
     expect(requiredIndicator).toBeInTheDocument();
-    expect(requiredIndicator).toHaveClass('text-[var(--btn-primary-negative-bg)]');
+    expect(requiredIndicator).toHaveClass('text-red-500');
   });
 
   it('should position label correctly based on labelPlacement', () => {

@@ -49,9 +49,17 @@
     "tokens": "npm run transform-tokens && npm run build-tokens && npm run extract-tokens",
     "version:info": "node scripts/version.js",
     "test:build": "node scripts/test-build.js",
-    "perf:test": "node scripts/perf-test.js"
+    "perf:test": "node scripts/perf-test.js",
+    "generate": "node scripts/generate-component.js",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "build:analyze": "cross-env ANALYZE=true npm run build:lib:prod",
+    "validate": "npm run lint && npm run test && npm run build:lib",
+    "check:types": "tsc --noEmit",
+    "check:bundle": "node scripts/check-bundle-size.js"
   },
   "dependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
     "clsx": "^2.1.1",
     "next": "^15.0.0",
     "react": "^18",
@@ -94,6 +102,7 @@
     "eslint": "^8",
     "eslint-config-next": "^15.0.0",
     "eslint-plugin-storybook": "^0.11.4",
+    "jsdom": "^26.0.0",
     "playwright": "^1.51.0",
     "postcss": "^8.5.3",
     "postcss-preset-env": "^10.1.5",

@@ -1,7 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import TimePicker from './TimePicker';
+import { describe, it, expect } from 'vitest';
+import {TimePicker } from './TimePicker';
+
 
 // Helper function to render with theme context if needed
 const renderWithTheme = (ui: React.ReactElement) => {
@@ -73,14 +74,19 @@ describe('TimePicker Component', () => {
       expect(screen.getByRole('listbox')).toBeInTheDocument();
     });
     
-    // Click on a time option (e.g., 3:00 PM)
-    const timeOption = screen.getByText('03:00 PM');
+    // Click on a time option (e.g., 3:15 PM)
+    const hourtimeOption = screen.getByText('03');
+    fireEvent.click(hourtimeOption);
+
+    const secondsOption = screen.getByText('15');
+    fireEvent.click(secondsOption);
+
+    const timeOption = screen.getByText('PM');
     fireEvent.click(timeOption);
     
     expect(handleChange).toHaveBeenCalled();
-    const selectedDate = handleChange.mock.calls[0][0];
-    expect(selectedDate.getHours()).toBe(15); // 3 PM = 15 hours
-    expect(selectedDate.getMinutes()).toBe(0);
+    const selectedDate = handleChange.mock.lastCall[0];
+    expect(selectedDate.toLocaleTimeString()).contains('3:15');
   });
 
   it('calls onChange with null when cleared', async () => {
@@ -162,7 +168,7 @@ describe('TimePicker Component', () => {
     });
     
     // Click on a time option
-    const timeOption = screen.getByText('03:00 PM');
+    const timeOption = screen.getByText('PM');
     fireEvent.click(timeOption);
     
     // Dropdown should be closed

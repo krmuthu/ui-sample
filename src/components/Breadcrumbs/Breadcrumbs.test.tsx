@@ -1,6 +1,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Breadcrumbs } from './Breadcrumbs';
+import { describe, it, expect } from 'vitest';
 
 describe('Breadcrumbs', () => {
   const defaultItems = [

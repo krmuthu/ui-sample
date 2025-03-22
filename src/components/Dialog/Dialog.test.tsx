@@ -3,7 +3,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
-import Dialog from './Dialog';
+import { Dialog } from './Dialog';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 
 // Mock createPortal to make testing portals possible

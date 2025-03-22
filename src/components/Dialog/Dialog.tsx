@@ -77,6 +77,11 @@ export interface DialogProps {
    * @default true
    */
   centered?: boolean;
+  
+  /**
+   * Data attribute for testing
+   */
+  'data-testid'?: string;
 }
 
 // Define the Footer component interface
@@ -113,6 +118,7 @@ export const Dialog: React.FC<DialogProps> = ({
   titleId: propsTitleId,
   descriptionId: propsDescriptionId,
   centered = true,
+  'data-testid': dataTestId,
 }) => {
   const [mounted, setMounted] = useState(false);
   const [portalContainer, setPortalContainer] = useState<HTMLElement | null>(null);
@@ -154,10 +160,16 @@ export const Dialog: React.FC<DialogProps> = ({
         onClose();
       }
     };
-    
+    const handleClickOutside = (event: MouseEvent) => {
+      if (!dialogRef?.current?.contains(event.target as Node) && closeOnBackdropClick) {
+        onClose(); // Close modal if clicked outside
+      }
+    };
     document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [open, onClose, closeOnEsc]);
   
@@ -214,6 +226,7 @@ export const Dialog: React.FC<DialogProps> = ({
       onClose();
     }
   };
+
   
   const dialog = (
     <div
@@ -221,8 +234,7 @@ export const Dialog: React.FC<DialogProps> = ({
       onClick={handleBackdropClick}
       aria-labelledby={title ? titleId : undefined}
       aria-describedby={descriptionId}
-      role="dialog"
-      aria-modal="true"
+        aria-modal="true"
     >
       <div
         ref={dialogRef}
@@ -234,6 +246,8 @@ export const Dialog: React.FC<DialogProps> = ({
           ${className}
         `}
         tabIndex={-1}
+        role="dialog"
+        data-testid={dataTestId}
       >
         {title && (
           <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">

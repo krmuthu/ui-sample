@@ -1,6 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Tabs } from './Tabs';
+import { vi, describe, it, expect } from 'vitest';
 
 const mockTabs = [
   { id: '1', label: 'Tab 1', children: <div>Content 1</div> },
@@ -26,19 +28,38 @@ describe('Tabs', () => {
   it('shows the first tab content by default', () => {
     render(<Tabs tabs={mockTabs} />);
     
-    expect(screen.getByText('Content 1')).toBeVisible();
-    expect(screen.queryByText('Content 2')).not.toBeVisible();
-    expect(screen.queryByText('Content 3')).not.toBeVisible();
+    const content1 = screen.getByText('Content 1');
+    expect(content1).toBeInTheDocument();
+    
+    // Check that hidden panels are not visible by checking for hidden attribute
+    const panel2 = screen.queryByText('Content 2')?.closest('[role="tabpanel"]');
+    const panel3 = screen.queryByText('Content 3')?.closest('[role="tabpanel"]');
+    
+    expect(panel2).not.toBeNull();
+    expect(panel3).not.toBeNull();
+    
+    if (panel2) expect(panel2).toHaveAttribute('hidden');
+    if (panel3) expect(panel3).toHaveAttribute('hidden');
   });
 
   it('changes active tab on click', () => {
     render(<Tabs tabs={mockTabs} />);
     
+    // Click the second tab
     fireEvent.click(screen.getByText('Tab 2'));
     
-    expect(screen.queryByText('Content 1')).not.toBeVisible();
-    expect(screen.getByText('Content 2')).toBeVisible();
-    expect(screen.queryByText('Content 3')).not.toBeVisible();
+    // Check that content 2 is visible and others are hidden
+    const content2 = screen.getByText('Content 2');
+    expect(content2).toBeInTheDocument();
+    
+    const panel1 = screen.queryByText('Content 1')?.closest('[role="tabpanel"]');
+    const panel3 = screen.queryByText('Content 3')?.closest('[role="tabpanel"]');
+    
+    expect(panel1).not.toBeNull();
+    expect(panel3).not.toBeNull();
+    
+    if (panel1) expect(panel1).toHaveAttribute('hidden');
+    if (panel3) expect(panel3).toHaveAttribute('hidden');
   });
 
   it('supports keyboard navigation', () => {
@@ -85,8 +106,13 @@ describe('Tabs', () => {
     
     // Click should not change tab
     fireEvent.click(disabledTab);
-    expect(screen.getByText('Content 1')).toBeVisible();
-    expect(screen.queryByText('Content 2')).not.toBeVisible();
+    
+    const content1 = screen.getByText('Content 1');
+    expect(content1).toBeInTheDocument();
+    
+    const panel2 = screen.queryByText('Content 2')?.closest('[role="tabpanel"]');
+    expect(panel2).not.toBeNull();
+    if (panel2) expect(panel2).toHaveAttribute('hidden');
     
     // Keyboard navigation should skip disabled tab
     const tablist = screen.getByRole('tablist');
@@ -98,7 +124,7 @@ describe('Tabs', () => {
   });
 
   it('supports controlled mode', () => {
-    const handleChange = jest.fn();
+    const handleChange = vi.fn();
     
     render(
       <Tabs
@@ -109,18 +135,26 @@ describe('Tabs', () => {
     );
     
     // Initially shows the controlled tab
-    expect(screen.queryByText('Content 1')).not.toBeVisible();
-    expect(screen.getByText('Content 2')).toBeVisible();
-    expect(screen.queryByText('Content 3')).not.toBeVisible();
+    const content2 = screen.getByText('Content 2');
+    expect(content2).toBeInTheDocument();
+    
+    const panel1 = screen.queryByText('Content 1')?.closest('[role="tabpanel"]');
+    const panel3 = screen.queryByText('Content 3')?.closest('[role="tabpanel"]');
+    
+    expect(panel1).not.toBeNull();
+    expect(panel3).not.toBeNull();
+    
+    if (panel1) expect(panel1).toHaveAttribute('hidden');
+    if (panel3) expect(panel3).toHaveAttribute('hidden');
     
     // Click triggers onChange but doesn't change tab
     fireEvent.click(screen.getByText('Tab 3'));
     expect(handleChange).toHaveBeenCalledWith('3');
     
     // Content remains unchanged because it's controlled
-    expect(screen.queryByText('Content 1')).not.toBeVisible();
-    expect(screen.getByText('Content 2')).toBeVisible();
-    expect(screen.queryByText('Content 3')).not.toBeVisible();
+    expect(content2).toBeInTheDocument();
+    if (panel1) expect(panel1).toHaveAttribute('hidden');
+    if (panel3) expect(panel3).toHaveAttribute('hidden');
   });
 
   it('supports lazy loading of tab content', () => {
@@ -154,20 +188,25 @@ describe('Tabs', () => {
     expect(screen.getByRole('tablist')).toHaveClass('bg-gray-50', 'rounded-t-lg');
     
     rerender(<Tabs tabs={mockTabs} variant="soft-rounded" />);
-    expect(screen.getByRole('button', { name: 'Tab 1' })).toHaveClass('rounded-full');
+    const tab1 = screen.getByText('Tab 1').closest('[role="tab"]');
+    expect(tab1).toHaveClass('rounded-full');
     
     rerender(<Tabs tabs={mockTabs} variant="solid-rounded" />);
-    const activeTab = screen.getByRole('button', { name: 'Tab 1' });
-    expect(activeTab).toHaveClass('rounded-full', 'bg-blue-500', 'text-white');
+    const activeTab = screen.getByText('Tab 1').closest('[role="tab"]');
+    expect(activeTab).toHaveClass('rounded-full');
+    // Check part of the active tab styling
+    expect(activeTab).toHaveClass('bg-blue-500', 'text-white');
   });
 
   it('supports different sizes', () => {
     const { rerender } = render(<Tabs tabs={mockTabs} size="sm" />);
     
-    expect(screen.getByRole('button', { name: 'Tab 1' })).toHaveClass('px-3', 'py-1.5', 'text-sm');
+    const tab1 = screen.getByText('Tab 1').closest('[role="tab"]');
+    expect(tab1).toHaveClass('px-3', 'py-1.5', 'text-sm');
     
     rerender(<Tabs tabs={mockTabs} size="lg" />);
-    expect(screen.getByRole('button', { name: 'Tab 1' })).toHaveClass('px-6', 'py-3', 'text-lg');
+    const tab1Large = screen.getByText('Tab 1').closest('[role="tab"]');
+    expect(tab1Large).toHaveClass('px-6', 'py-3', 'text-lg');
   });
 
   it('stretches tabs when isFitted is true', () => {

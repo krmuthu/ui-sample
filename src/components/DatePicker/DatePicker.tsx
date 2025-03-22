@@ -562,7 +562,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
     >
       <Calendar
         value={value}
-        onChange={onChange}
+        //onChange={onChange} disable onchange from calender
         minDate={minDate}
         maxDate={maxDate}
         disabledDates={disabledDates}

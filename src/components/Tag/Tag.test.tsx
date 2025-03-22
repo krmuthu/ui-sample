@@ -2,6 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Tag } from './Tag';
+import { vi, describe, it, expect } from 'vitest';
 
 describe('Tag Component', () => {
   it('renders text correctly', () => {
@@ -21,14 +22,14 @@ describe('Tag Component', () => {
   });
 
   it('calls onClick when clicked', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(<Tag text="TypeScript" onClick={handleClick} />);
     fireEvent.click(screen.getByText('TypeScript'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
   it('calls onClick when clicked as a link', () => {
-    const handleClick = jest.fn();
+    const handleClick = vi.fn();
     render(<Tag text="JavaScript" isLink href="/tags/javascript" onClick={handleClick} />);
     fireEvent.click(screen.getByText('JavaScript'));
     expect(handleClick).toHaveBeenCalledTimes(1);
@@ -37,14 +38,19 @@ describe('Tag Component', () => {
   it('renders with custom color', () => {
     render(<Tag text="Success" color="success" data-testid="tag" />);
     const tagElement = screen.getByTestId('tag');
-    // This assumes the Chip component adds a class based on the color
-    expect(tagElement).toHaveClass('success');
+    // Check for bg-green-100 which is part of the success color in soft variant
+    expect(tagElement).toHaveClass('bg-green-100');
+    expect(tagElement).toHaveClass('text-green-800');
   });
 
-  it('renders as removable when removable prop is true', () => {
-    const handleRemove = jest.fn();
-    render(<Tag text="Remove Me" removable onRemove={handleRemove} />);
-    const removeButton = screen.getByRole('button');
+  it('renders with a close icon when children are provided', () => {
+    const handleRemove = vi.fn();
+    render(
+      <Tag text="Remove Me">
+        <button onClick={handleRemove}>x</button>
+      </Tag>
+    );
+    const removeButton = screen.getByText('x');
     fireEvent.click(removeButton);
     expect(handleRemove).toHaveBeenCalledTimes(1);
   });

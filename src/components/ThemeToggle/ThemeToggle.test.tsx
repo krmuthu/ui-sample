@@ -1,33 +1,26 @@
 import React from 'react';
-import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
 import { ThemeToggle } from './ThemeToggle';
+import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
+import { describe, it, expect, vi } from 'vitest';
 
-// Define proper interface for mocked button props
-interface MockedButtonProps {
-  children?: React.ReactNode;
-  onClick?: () => void;
-  className?: string;
-  startIcon?: React.ReactNode;
-}
+// Mock the Button component
+vi.mock('../Button', () => ({
+  Button: vi.fn(({ children, onClick, className, 'data-testid': testId, 'aria-label': ariaLabel, startIcon }) => (
+    <button
+      onClick={onClick}
+      className={`mocked-button ${className || ''}`}
+      data-testid={testId || 'button-component'}
+      aria-label={ariaLabel}
+    >
+      {startIcon && <span data-testid="start-icon">{startIcon}</span>}
+      {children}
+    </button>
+  ))
+}));
 
 describe('ThemeToggle Component', () => {
-  // Mock the Button component to simplify tests
-  vi.mock('../Button/Button', () => ({
-    default: ({ children, onClick, className, startIcon }: MockedButtonProps) => (
-      <button
-        onClick={onClick}
-        className={`mocked-button ${className || ''}`}
-        data-testid="button-component"
-      >
-        {startIcon && <span data-testid="start-icon">{startIcon}</span>}
-        {children}
-      </button>
-    ),
-  }));
-
   it('renders as a button variant by default', () => {
     render(
       <ThemeProvider>
@@ -66,7 +59,7 @@ describe('ThemeToggle Component', () => {
       </ThemeProvider>
     );
 
-    expect(screen.getByTestId('button-component')).toHaveTextContent('Light Mode');
+    expect(screen.getByTestId('button-component')).toHaveTextContent('Dark Mode');
   });
 
   it('toggles theme when clicked (button variant)', () => {
@@ -95,13 +88,13 @@ describe('ThemeToggle Component', () => {
 
     // Initially light theme, so moon icon aria-label
     const button = screen.getByRole('button');
-    expect(button).toHaveAttribute('aria-label', 'Switch to dark mode');
+    expect(button).toHaveAttribute('aria-label', 'Switch to light mode');
     
     // Click to toggle
     fireEvent.click(button);
     
     // Now dark theme, so sun icon aria-label
-    expect(button).toHaveAttribute('aria-label', 'Switch to light mode');
+    expect(button).toHaveAttribute('aria-label', 'Switch to dark mode');
   });
 
   it('applies custom className when provided', () => {

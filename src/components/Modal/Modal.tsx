@@ -52,6 +52,11 @@ export interface ModalProps {
    * @default true
    */
   centered?: boolean;
+  
+  /**
+   * Data attribute for testing
+   */
+  'data-testid'?: string;
 }
 
 // Define Footer props
@@ -102,6 +107,7 @@ const Modal: React.FC<ModalProps> = ({
   closeOnEscape = true,
   showCloseButton = true,
   centered = true,
+  'data-testid': dataTestId,
 }) => {
   return (
     <Dialog
@@ -113,6 +119,7 @@ const Modal: React.FC<ModalProps> = ({
       showCloseButton={showCloseButton}
       centered={centered}
       size={mapSize(size)}
+      data-testid={dataTestId}
     >
       {children}
     </Dialog>

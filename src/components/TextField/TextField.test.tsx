@@ -4,6 +4,7 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { TextField } from './TextField';
 import { ThemeProvider } from '../ThemeProvider/ThemeProvider';
+import '@testing-library/jest-dom';
 
 // Helper function to render components with ThemeProvider
 const renderWithTheme = (ui: React.ReactElement, options = {}) => {
@@ -66,7 +67,7 @@ describe('TextField', () => {
     
     const inputElement = screen.getByTestId('input');
     expect(inputElement).toHaveAttribute('aria-invalid', 'true');
-    expect(inputElement.className).toContain('border-[var(--btn-primary-negative-bg)]');
+    expect(inputElement.className).toContain('border-red-500');
   });
 
   it('prioritizes error message over helper text when both are provided', () => {
@@ -227,7 +228,7 @@ describe('TextField', () => {
     // Check for the asterisk
     const asterisk = screen.getByText('*');
     expect(asterisk).toBeInTheDocument();
-    expect(asterisk).toHaveClass('text-[var(--btn-primary-negative-bg)]');
+    expect(asterisk).toHaveClass('text-red-500');
   });
 
   it('does not show an asterisk when required is false', () => {
