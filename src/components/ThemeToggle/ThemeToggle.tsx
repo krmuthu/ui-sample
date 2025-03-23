@@ -16,6 +16,7 @@ export const ThemeToggle: React.FC<ThemeToggleProps> = ({
   if (variant === 'icon') {
     return (
       <button
+      title='Toggle theme'
         onClick={toggleTheme}
         className={`p-2 rounded-full focus:outline-none focus:ring-2 focus:ring-primary-500 ${className}`}
         aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}

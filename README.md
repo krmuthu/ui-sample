@@ -225,6 +225,15 @@ npm run test:coverage
 yarn test:coverage
 ```
 
+Clipper UI uses Vitest for testing all components. The test suite includes:
+
+- Unit tests for all components
+- Integration tests for component interactions
+- Accessibility testing
+- Test coverage reporting
+
+All test files are located adjacent to their component files as `ComponentName.test.tsx`.
+
 ### Documentation
 
 Generate README files for all components:

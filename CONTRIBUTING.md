@@ -303,7 +303,9 @@ We value comprehensive testing to ensure component quality:
 Example:
 
 ```tsx
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
 import { Button } from './Button';
 
 describe('Button', () => {
@@ -332,6 +334,46 @@ describe('Button', () => {
   });
 });
 ```
+
+### Working with Vitest
+
+Our project uses Vitest for testing, which provides a modern, fast test runner compatible with the same API as Jest:
+
+- **Running Tests**: 
+  ```bash
+  npm run test           # Run all tests
+  npm run test:watch     # Run tests in watch mode
+  npm run test:coverage  # Generate coverage reports
+  ```
+
+- **Mocking**:
+  ```tsx
+  // Mock a function
+  const mockFn = vi.fn();
+  
+  // Mock a module
+  vi.mock('./somePath', () => ({
+    someFunction: vi.fn(),
+    SomeComponent: () => <div>Mocked Component</div>
+  }));
+  
+  // Mock timers
+  vi.useFakeTimers();
+  vi.advanceTimersByTime(1000);
+  vi.useRealTimers();
+  ```
+
+- **Testing Portals**:
+  ```tsx
+  // Mock createPortal for testing modals, dialogs, etc.
+  vi.mock('react-dom', async () => {
+    const actual = await vi.importActual('react-dom');
+    return {
+      ...actual,
+      createPortal: (node) => node,
+    };
+  });
+  ```
 
 ### Visual Testing
 

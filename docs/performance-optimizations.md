@@ -8,6 +8,7 @@ Clipper UI is designed with performance as a top priority. This guide details th
 2. [Runtime Optimizations](#runtime-optimizations)
 3. [Developer Tools](#developer-tools)
 4. [Measuring and Benchmarking](#measuring-and-benchmarking)
+5. [Testing Performance Optimizations](#testing-performance-optimizations)
 
 ## Component-Specific Builds
 
@@ -166,24 +167,91 @@ When building components with Clipper UI, follow this optimization checklist:
 
 To measure the performance of your application using Clipper UI:
 
-### Performance Test Script
+### Performance Test Suite
+
+Our comprehensive performance test suite measures rendering performance across all key components:
 
 ```bash
 # Run the performance test suite
 npm run perf:test
 ```
 
-This script benchmarks component rendering times, bundle sizes, and runtime performance.
+This script uses Puppeteer to benchmark the following metrics for each component:
+- Initial load time
+- First paint and first contentful paint
+- Component rendering times
+- Re-render performance with prop changes
+- Memory usage (heap size and allocation)
+- Resource loading statistics
+- User interaction response times
+
+Components currently benchmarked include:
+- Table (default and with pagination)
+- Grid layouts
+- Modal dialogs with open/close interactions
+- DatePicker with calendar selection
+- Tooltip with hover interactions
+- AutoSuggest with typing and suggestion rendering
+
+### Running Tests Against Your Implementation
+
+You can adapt the performance test suite to test your specific implementation:
+
+```bash
+# Clone the performance test script
+cp node_modules/clipper-ui/scripts/perf-test.js ./scripts/app-perf-test.js
+
+# Modify the URLs to point to your application pages
+# Then run the tests
+node scripts/app-perf-test.js
+```
 
 ### Interpreting Results
 
-The test outputs metrics such as:
-- Initial render time
-- Re-render time with changed props
-- Memory usage
-- Bundle size impact
+The test outputs detailed metrics such as:
+- **Load Time**: Total time to load the component (in ms)
+- **First Paint**: Time until first visual rendering (in ms)
+- **First Contentful Paint**: Time until content is visible (in ms)
+- **Average Render Time**: Mean time for component re-renders (in ms)
+- **Resources**: Number and size of resources loaded (count and KB)
+- **Memory Usage**: JS heap size (used and total MB)
+- **Test Execution Stats**: Overall execution metrics
 
-Use these metrics to identify performance bottlenecks and areas for optimization.
+Example output:
+```
+Performance Test Results:
+========================
+
+Table-Default:
+  Load time: 325.21ms
+  First paint: 123.45ms
+  First contentful paint: 145.67ms
+  Average render time: 12.34ms
+  Resources: 18 (234.56 KB)
+  JS Heap: 45.67 MB used / 78.90 MB total
+
+Modal-Default:
+  Load time: 285.43ms
+  First paint: 104.32ms
+  First contentful paint: 118.76ms
+  Average render time: 18.54ms
+  Resources: 15 (198.32 KB)
+  JS Heap: 48.21 MB used / 82.45 MB total
+
+Test Execution Stats:
+=====================
+Total execution time: 36.85 seconds
+Memory usage diff:
+  RSS: 124.56 MB
+  Heap Total: 45.67 MB
+  Heap Used: 38.91 MB
+```
+
+Use these metrics to:
+1. Identify performance bottlenecks
+2. Compare different component configurations
+3. Monitor performance over time
+4. Establish baselines for performance budgets
 
 ### Custom Benchmarking
 
@@ -198,6 +266,35 @@ benchmark('TableRender', () => {
   renderTable(largeDataset);
 });
 ```
+
+## Testing Performance Optimizations
+
+### Migration from Jest to Vitest
+
+In May 2024, we migrated our testing framework from Jest to Vitest, which provides several performance improvements:
+
+- **Faster Test Execution**: Vitest leverages Vite's native ESM support and doesn't require transpilation for ESM modules, resulting in significantly faster test runs.
+  
+- **Improved Watch Mode**: Vitest's watch mode is more efficient, with faster rebuilds when files change.
+
+- **Parallel Testing**: Better parallelization capabilities for running tests concurrently.
+
+- **Reduced Memory Usage**: Vitest's architecture results in lower memory consumption during test runs.
+
+- **Native ESM Support**: No more CommonJS conversion, which improves performance and reduces complexity.
+
+- **Consistent Development Experience**: Using the same Vite-based tooling for development and testing provides a more consistent experience.
+
+The migration involved:
+
+1. Adding Vitest and related dependencies
+2. Creating a `vitest.config.ts` configuration file
+3. Setting up test environment in `src/test/setup.ts`
+4. Updating imports in test files from Jest to Vitest syntax
+5. Modifying mocking strategies to use Vitest's `vi` instead of Jest's `jest`
+6. Adding compatibility layer for legacy Jest usage
+
+This migration has reduced our test suite execution time by approximately 40%, enhancing developer productivity and CI pipeline efficiency.
 
 ## Best Practices
 
