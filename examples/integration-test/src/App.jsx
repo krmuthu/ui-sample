@@ -15,9 +15,12 @@ import {
   Switch,
   FormLabel,
   Dialog,
-  DatePicker
+  DatePicker,
+  TimePicker,
+  DateTimePicker
 } from 'clipper-ui';
 import ThemeTest from './ThemeTest';
+import dayjs from 'dayjs';
 
 function App() {
   const version = getVersion()
@@ -644,22 +647,31 @@ function DialogExample() {
 // DatePicker Example Component
 function DatePickerExample() {
   const [selectedDate, setSelectedDate] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedDateTime, setSelectedDateTime] = useState(null);
   const [dateRange, setDateRange] = useState({
     startDate: null,
     endDate: null
   });
   
-  // Create date restrictions
-  const today = new Date();
-  const oneMonthAgo = new Date(today);
-  oneMonthAgo.setMonth(today.getMonth() - 1);
-  
-  const oneMonthAhead = new Date(today);
-  oneMonthAhead.setMonth(today.getMonth() + 1);
+  // Create date restrictions using dayjs
+  const today = dayjs();
+  const oneMonthAgo = today.subtract(1, 'month').toDate();
+  const oneMonthAhead = today.add(1, 'month').toDate();
   
   // Handle date selection with validation
   const handleDateChange = (date) => {
     setSelectedDate(date);
+  };
+  
+  // Handle time selection
+  const handleTimeChange = (time) => {
+    setSelectedTime(time);
+  };
+  
+  // Handle datetime selection
+  const handleDateTimeChange = (datetime) => {
+    setSelectedDateTime(datetime);
   };
   
   // Handle start date change
@@ -681,7 +693,8 @@ function DatePickerExample() {
             label="Select a date"
             value={selectedDate}
             onChange={handleDateChange}
-            helperText={selectedDate ? `You selected: ${selectedDate.toLocaleDateString()}` : "Click to select a date"}
+            helperText={selectedDate ? `You selected: ${dayjs(selectedDate).format('MM/DD/YYYY')}` : "Click to select a date"}
+            displayFormat="MM/DD/YYYY"
           />
         </div>
         
@@ -691,7 +704,19 @@ function DatePickerExample() {
             label="Select within range"
             minDate={oneMonthAgo}
             maxDate={oneMonthAhead}
-            helperText={`Select a date between ${oneMonthAgo.toLocaleDateString()} and ${oneMonthAhead.toLocaleDateString()}`}
+            helperText={`Select a date between ${dayjs(oneMonthAgo).format('MM/DD/YYYY')} and ${dayjs(oneMonthAhead).format('MM/DD/YYYY')}`}
+            displayFormat="MM/DD/YYYY"
+          />
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-medium mb-3">Time Picker</h3>
+          <TimePicker
+            label="Select a time"
+            value={selectedTime}
+            onChange={handleTimeChange}
+            helperText={selectedTime ? `You selected: ${dayjs(selectedTime).format('hh:mm A')}` : "Click to select a time"}
+            format="12h"
           />
         </div>
       </div>
@@ -706,6 +731,7 @@ function DatePickerExample() {
               onChange={handleStartDateChange}
               maxDate={dateRange.endDate}
               helperText="Select the start date"
+              displayFormat="MM/DD/YYYY"
             />
             
             <DatePicker
@@ -714,28 +740,38 @@ function DatePickerExample() {
               onChange={handleEndDateChange}
               minDate={dateRange.startDate}
               helperText="Select the end date"
-              error={dateRange.startDate && dateRange.endDate && dateRange.endDate < dateRange.startDate}
+              error={dateRange.startDate && dateRange.endDate && dayjs(dateRange.endDate).isBefore(dayjs(dateRange.startDate))}
               errorMessage="End date must be after start date"
+              displayFormat="MM/DD/YYYY"
             />
           </div>
         </div>
         
         <div>
-          <h3 className="text-lg font-medium mb-3">Different Sizes</h3>
+          <h3 className="text-lg font-medium mb-3">Date Time Picker</h3>
+          <DateTimePicker
+            label="Select date and time"
+            value={selectedDateTime}
+            onChange={handleDateTimeChange}
+            helperText={selectedDateTime ? `You selected: ${dayjs(selectedDateTime).format('MM/DD/YYYY hh:mm A')}` : "Click to select date and time"}
+            displayFormat="MM/DD/YYYY hh:mm A"
+            timeFormat="12h"
+          />
+        </div>
+        
+        <div>
+          <h3 className="text-lg font-medium mb-3">Different Time Formats</h3>
           <div className="space-y-4">
-            <DatePicker
-              label="Small Size"
-              size="small"
+            <TimePicker
+              label="12-hour Format"
+              format="12h"
+              displayFormat="hh:mm A"
             />
             
-            <DatePicker
-              label="Medium Size (Default)"
-              size="medium"
-            />
-            
-            <DatePicker
-              label="Large Size"
-              size="large"
+            <TimePicker
+              label="24-hour Format"
+              format="24h"
+              displayFormat="HH:mm"
             />
           </div>
         </div>

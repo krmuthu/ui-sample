@@ -7,6 +7,7 @@ import postcss from 'rollup-plugin-postcss';
 import versionPlugin from './scripts/rollup-plugin-version.js';
 import replace from '@rollup/plugin-replace';
 import { versionInfo } from './scripts/version.js';
+import path from 'path';
 
 // Log the version info for debugging
 console.log('Building with version:', versionInfo.version);
@@ -70,6 +71,7 @@ export default {
       config: {
         path: './postcss.config.mjs',
       },
+      extract: path.resolve('dist/styles.css'), // Extract CSS into a separate file
       extensions: ['.css'],
       minimize: true,
       inject: {

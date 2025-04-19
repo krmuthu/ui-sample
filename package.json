@@ -1,7 +1,6 @@
 {
-  "name": "clipper-ui",
+  "name": "clipper-ui-beta",
   "version": "0.1.0",
-  "private": true,
   "type": "module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -29,6 +28,10 @@
       "types": "./dist/components/Table/index.d.ts",
       "import": "./dist/components/Table/index.esm.js",
       "require": "./dist/components/Table/index.js"
+    },
+    "./styles.css": {
+      "import": "./dist/styles.css",
+      "require": "./dist/styles.css"
     }
   },
   "scripts": {
