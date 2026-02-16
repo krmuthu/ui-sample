@@ -1,0 +1,252 @@
+mplementation Plan: Search Quality & Reliability Improvements
+How the App Works Today
+User Query (via MCP)
+       │
+       ▼
+┌─────────────────────────────────────────────────────────┐
+│  SEARCH PIPELINE (hybrid_search.ts)                     │
+│                                                         │
+│  1. Embed query     → AI Worker ("search_query: ...")    │
+│  2. Vector search   → sqlite-vec (top 50)               │
+│  3. FTS5 search     → full-text (top 50)                │
+│  4. RRF fusion      → merge by chunk_id (top 25)        │
+│  5. Cross-encoder   → rerank → top K results            │
+└─────────────────────────────────────────────────────────┘
+       │
+       ▼
+Data was embedded during INGESTION:
+┌─────────────────────────────────────────────────────────┐
+│  INGESTION (sync_handler.ts → bootstrap.ts)             │
+│                                                         │
+│  1. Parser worker   → CAST chunker (tree-sitter AST)    │
+│     outputs: { content, context_header, ast_type, ... } │
+│                                                         │
+│  2. AI worker       → embed("search_document: " + ??)   │
+│     Currently embeds: c.content ONLY ❌                  │
+│     Missing: context_header, file_path                  │
+│                                                         │
+│  3. Store in DB     → files, chunks, vec_chunks, fts5   │
+└─────────────────────────────────────────────────────────┘
+The core issue: what you embed determines what you can find. Today, structural information (breadcrumbs, file paths) exists in the DB but is invisible to vector search — the most important retrieval leg.
+
+Proposed Changes
+🔴 Critical: Search Quality
+#1 — Embed Breadcrumbs Into Vectors
+[MODIFY] 
+phase1-ingestion.md
+The parser worker builds breadcrumbs like class_declaration:AuthService > method_definition:validateToken. Today this is stored in DB but NOT sent to the embedding model.
+
+diff
+// 2. Generate embeddings in batches
+  const EMBED_BATCH = 4;
+  const embeddings: any[] = [];
+  for (let i = 0; i < chunks.length; i += EMBED_BATCH) {
+    const batch = chunks.slice(i, i + EMBED_BATCH);
+    const results = await Promise.all(
+-     batch.map((c: any) => ai.execute({ type: 'embed', text: c.content }))
++     batch.map((c: any) => ai.execute({
++       type: 'embed',
++       text: c.context_header
++         ? `${c.context_header}\n\n${c.content}`
++         : c.content
++     }))
+    );
+    embeddings.push(...results);
+  }
+Why: Without this, querying "AuthService validateToken" relies entirely on FTS5. The vector leg — which contributes ~60% of retrieval quality — is blind to class/function names.
+
+#2 — Include Breadcrumbs in Reranker Input
+[MODIFY] 
+phase1-search-and-mcp.md
+The cross-encoder sees raw code but not structural context. It can't distinguish a validateToken method inside AuthService from one inside MockAuthService.
+
+diff
+// 5. Cross-encoder rerank
+  const { scores: reranked } = await ai.execute({
+    type: 'rerank',
+    query,
+-   docs: docs.map(d => ({ id: d.id, text: d.content }))
++   docs: docs.map(d => ({
++     id: d.id,
++     text: d.context_header
++       ? `File: ${d.file_path}\n${d.context_header}\n\n${d.content}`
++       : `File: ${d.file_path}\n\n${d.content}`
++   }))
+  });
+Why: The reranker is the final quality gate. Giving it file path + breadcrumb lets it make much better relevance judgments.
+
+#3 — Fix FTS5 Query Escaping
+[MODIFY] 
+phase1-search-and-mcp.md
+Current code wraps the entire query in quotes, forcing exact-phrase matching. "validate token expiry" only matches that exact 3-word sequence.
+
+In hybridSearch():
+
+diff
+// 2b. FTS5 search
+- const safeQuery = '"' + query.replace(/"/g, '""') + '"';
++ // Tokenize query for AND matching (each term must appear, any order)
++ // Escape FTS5 special chars, wrap each token in quotes
++ const tokens = query
++   .replace(/[*(){}[\]^~@:]/g, ' ')     // strip FTS5 operators
++   .split(/\s+/)
++   .filter(t => t.length > 1);           // drop single chars
++ const safeQuery = tokens
++   .map(t => `"${t.replace(/"/g, '""')}"`)
++   .join(' AND ');
+Why: Users search for concepts like "validate token expiry" — they expect results containing all three terms anywhere, not only the exact phrase in sequence.
+
+#4 — Fix search_exact_match (True Substring Matching)
+[MODIFY] 
+phase1-search-and-mcp.md
+The tool claims "literal substring matching" but uses FTS5 (tokenized, case-insensitive). It can't find handleWeb (partial), process.env.API_KEY (dotted), or case-sensitive matches.
+
+diff
+case 'search_exact_match': {
+-   const ftsResults = db.prepare(`
+-     SELECT c.content, c.start_line, c.end_line, c.context_header, f.file_path, f.repo_slug
+-     FROM fts_chunks fts
+-     JOIN chunks c ON c.id = fts.rowid
+-     JOIN files f ON c.file_id = f.id
+-     WHERE fts_chunks MATCH ?
+-     ${args.repo ? 'AND f.repo_slug = ?' : ''}
+-     ${args.file_ext ? 'AND f.file_path LIKE ?' : ''}
+-     LIMIT 50
+-   `);
+-   const params: any[] = [`"${args.pattern.replace(/"/g, '""')}"`];
++   // Two-phase: FTS5 pre-filter (fast) → INSTR post-filter (exact)
++   // FTS5 narrows the candidate set, INSTR does true substring match
++   const ftsResults = db.prepare(`
++     SELECT c.content, c.start_line, c.end_line, c.context_header,
++            f.file_path, f.repo_slug
++     FROM chunks c
++     JOIN files f ON c.file_id = f.id
++     WHERE INSTR(c.content, ?) > 0
++     ${args.repo ? 'AND f.repo_slug = ?' : ''}
++     ${args.file_ext ? "AND f.file_path LIKE ?" : ''}
++     LIMIT 50
++   `);
++   const params: any[] = [args.pattern];
+    if (args.repo) params.push(args.repo);
+    if (args.file_ext) params.push(`%.${args.file_ext}`);
+    return { pattern: args.pattern, results: ftsResults.all(...params) };
+  }
+IMPORTANT
+
+INSTR() does a full table scan. For large indices (100k+ chunks), consider a two-phase approach: FTS5 pre-filter with individual tokens, then INSTR() post-filter for exact matching. For the initial scale (10-20 repos, ~50k chunks), INSTR() alone is fast enough (<100ms on SQLite with WAL + mmap).
+
+🟡 Important: Reliability
+#5 — read_full_file Reads From Disk
+[MODIFY] 
+phase1-search-and-mcp.md
+Reconstructing files from chunks is lossy (missing whitespace, comments between functions). The cloned repo is already on disk.
+
+diff
++ import { existsSync, readFileSync } from 'fs';
++ import { join } from 'path';
++ import { repoPath } from '../lib/git.js';
+  case 'read_full_file': {
+-   const chunks = db.prepare(`
+-     SELECT c.content FROM chunks c JOIN files f ON c.file_id = f.id
+-     WHERE f.repo_slug = ? AND f.file_path = ? ORDER BY c.chunk_index
+-   `).all(args.repo_slug, args.file_path) as any[];
+-   if (!chunks.length) throw new Error('File not found');
+-   return { file_path: args.file_path, content: chunks.map(c => c.content).join('\n\n') };
++   // Read directly from cloned repo — exact file, no lossy reconstruction
++   const fullPath = join(repoPath(args.repo_slug), args.file_path);
++   if (!existsSync(fullPath)) throw new Error(`File not found: ${args.file_path}`);
++   const content = readFileSync(fullPath, 'utf-8');
++   return { file_path: args.file_path, content, source: 'disk' };
+  }
+#6 — Repo-Scoped Semantic Search
+[MODIFY] 
+phase1-search-and-mcp.md
+Tool definition — add optional repo_slug param:
+
+diff
+properties: {
+    query: { ... },
+    top_k: { ... },
++   repo_slug: {
++     type: 'string',
++     description: 'Optional. Filter results to a specific repo (e.g. "workspace/repo-name"). Omit to search all repos.',
++   },
+  },
+hybridSearch() signature — add repo filter:
+
+diff
+- export async function hybridSearch(query: string, topK = 10): Promise<SearchResponse> {
++ export async function hybridSearch(query: string, topK = 10, repoSlug?: string): Promise<SearchResponse> {
+Vector search — filter in the chunk-fetch step (sqlite-vec doesn't support JOINs):
+
+diff
+// 4. Fetch chunk content (apply repo filter here)
+  const docs = db.prepare(`
+    SELECT c.id, c.content, c.context_header, c.start_line, c.end_line,
+           f.file_path, f.repo_slug
+    FROM chunks c JOIN files f ON c.file_id = f.id
+    WHERE c.id IN (${ph})
++   ${repoSlug ? 'AND f.repo_slug = ?' : ''}
+- `).all(...candidateIds) as any[];
++ `).all(...candidateIds, ...(repoSlug ? [repoSlug] : [])) as any[];
+Dispatch:
+
+diff
+case 'search_semantic_code':
+-   return hybridSearch(args.query, args.top_k ?? 10);
++   return hybridSearch(args.query, args.top_k ?? 10, args.repo_slug);
+#7 — Include File Path in Embedding
+[MODIFY] 
+phase1-ingestion.md
+File paths carry semantic signal (src/auth/middleware.ts tells you it's auth middleware). This compounds with the breadcrumb fix (#1).
+
+diff
+const results = await Promise.all(
+    batch.map((c: any) => ai.execute({
+      type: 'embed',
+-     text: c.context_header
+-       ? `${c.context_header}\n\n${c.content}`
+-       : c.content
++     text: [
++       c.context_header,
++       `File: ${filePath}`,
++       c.content,
++     ].filter(Boolean).join('\n\n')
+    }))
+  );
+NOTE
+
+#1 and #7 modify the same line. They should be applied together as shown above.
+
+#8 — Stale File Cleanup on Bootstrap
+[MODIFY] 
+phase1-ingestion.md
+Files deleted from repo between bootstraps remain as zombie entries. The LLM may cite code that no longer exists.
+
+Add after the ingestion loop (after the console.log with indexed/skipped counts):
+
+typescript
+// 10. Clean up stale files (deleted from repo since last sync)
+    const onDiskSet = new Set(files.map(f => f.filePath));
+    const dbFiles = db.prepare('SELECT file_path FROM files WHERE repo_slug = ?')
+      .all(slug) as { file_path: string }[];
+    let removed = 0;
+    for (const row of dbFiles) {
+      if (!onDiskSet.has(row.file_path)) {
+        db.prepare('DELETE FROM files WHERE repo_slug = ? AND file_path = ?')
+          .run(slug, row.file_path);  // Cascades to chunks → vec_chunks + fts_chunks via triggers
+        removed++;
+      }
+    }
+    if (removed) console.log(`  🗑 Removed ${removed} stale files`);
+Verification Plan
+Automated (at implementation time)
+#	Test	Validates
+1	Bootstrap a repo, then search by class name → appears in vector results	#1 + #7 breadcrumb+path in embedding
+2	Search query with 3 words → results contain all terms (not exact phrase only)	#3 FTS5 escaping
+3	Search exact match for process.env. → returns matches	#4 true substring matching
+4	read_full_file → compare output byte-for-byte against disk file	#5 read from disk
+5	search_semantic_code with repo_slug filter → no results from other repos	#6 repo-scoped search
+6	Delete a file from repo, re-bootstrap → stale file gone from DB	#8 stale cleanup
+Manual
+Verify MCP tools work end-to-end in Windsurf/Cursor after changes
