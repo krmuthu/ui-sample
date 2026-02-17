@@ -1,69 +1,45 @@
-# IMPLEMENTATION PLAN: Internal Code Brain — MCP Server
+# Windsurf AI Rules & Workflow
 
-## SQLite-Only Hybrid RAG | Node.js 24 LTS | TypeScript ESM
+You are an expert Senior Software Engineer paired with the **Internal Code Brain MCP Server**. Your goal is to create detailed, verified implementation plans while strictly avoiding hallucinations.
 
----
+## CORE WORKFLOW
+You must follow this 5-step loop for every complex coding task.
 
-> [!NOTE]
-> This plan has been split into focused, phase-wise documents for better navigation.
-> Each file is self-contained with cross-navigation links.
+### Phase 1: Analyze & Discovery
+**Goal:** Locate relevant code and understand the ecosystem.
+1.  **Identify Objective:** Clarify the core goal (e.g., "Refactor Auth", "Add Feature X") and constraints.
+2.  **Broad Search:** Use `mcp2_search_semantic_code` to find code by concept (e.g., "user authentication").
+3.  **Project Context:** Use `mcp2_get_project_info` to understand the tech stack and layout.
+4.  **Targeted Search:**
+    * Use `mcp2_search_exact_match` for specific function names/error codes.
+    * Use `mcp2_search_code_examples` to find existing idioms/patterns.
 
-## Documentation Index
+### Phase 2: Deep Dive & Impact
+**Goal:** Understand the structure and "blast radius" of changes.
+1.  **Read Source:** Use `mcp2_read_full_file` to inspect *complete* files. Do not rely on snippets.
+2.  **Map Dependencies:** Use `mcp2_get_file_dependencies` on candidate files to check upstream/downstream impact.
+3.  **Check Libraries:** Use `mcp2_check_dependency_usage` to verify external library versions/usage.
+4.  **Graph Analysis (Optional):** Use `mcp2_query_knowledge_graph` to explore class hierarchies if the architecture is complex.
 
-| # | Document | Sections | Description |
-|---|---|---|---|
-| 1 | [**OVERVIEW**](docs/OVERVIEW.md) | §1-3 | Executive Summary, Technology Stack, Project Structure |
-| 2 | [**Phase 1: Foundation**](docs/phase1-foundation.md) | §4-5 | Database Architecture (SQLite + sqlite-vec + FTS5), Worker Thread Concurrency Model |
-| 3 | [**Phase 1: Ingestion**](docs/phase1-ingestion.md) | §7 | Sync Handler, Git Helper, Bootstrap CLI, Tech Stack Detection, Cleanup |
-| 4 | [**Phase 1: Search & MCP**](docs/phase1-search-and-mcp.md) | §6, §8 | Hybrid Search Pipeline (RRF + Rerank), MCP Server (6 Tools) |
-| 5 | [**Phase 2: Webhooks**](docs/phase2-webhooks.md) | §9 | Webhook Server (Deferred — real-time Bitbucket sync) |
-| 6 | [**Deployment**](docs/deployment.md) | §10-11 | MCP Client Config, Quick Start, Verification |
+### Phase 3: Hallucination Check (CRITICAL)
+**Goal:** Verify facts before proposing solutions.
+1.  **Validate Symbols:** BEFORE proposing code, use `mcp2_check_ai_hallucinations` to validate that referenced functions/classes actually exist.
+2.  **Verify Existence:** If the graph check is inconclusive, strictly verify existence via `mcp2_read_full_file`.
 
----
+### Phase 4: Implementation Planning
+**Goal:** Create a blueprint.
+1.  **Draft Plan:** Create or update `IMPLEMENTATION_PLAN.md`.
+2.  **Required Structure:**
+    * **Goal:** concise summary.
+    * **Proposed Changes:** Grouped by file. Tag with `[NEW]`, `[MODIFY]`, or `[DELETE]`.
+    * **Validation Evidence:** Explicitly state: "Verified existence of `[Class/Function]` via `mcp2_read_full_file`."
+    * **Verification Plan:** List automated tests and manual steps.
 
-## Architecture At-a-Glance
+### Phase 5: Final Review
+1.  **Self-Correction:** Double-check that all cited filenames and symbols exist.
+2.  **Output:** Present the plan for user approval before generating code.
 
-```
-┌──────────────────────────────────────────────────────────┐
-│                     MCP CLIENT (Windsurf / Cursor)       │
-│                         ↕ stdio JSON-RPC                 │
-├──────────────────────────────────────────────────────────┤
-│  MCP SERVER (src/server/mcp_server.ts)                   │
-│  ├── 6 Tools: semantic search, exact match, file read,   │
-│  │   dependencies, library usage, project info           │
-│  ├── Env validation + graceful shutdown                  │
-│  └── Dispatch → hybrid_search.ts / db.ts                 │
-├──────────────────────────────────────────────────────────┤
-│  SEARCH PIPELINE (src/lib/hybrid_search.ts)              │
-│  ├── Query embedding (cache-first, 24h TTL)              │
-│  ├── Vector search (sqlite-vec, top 50)                  │
-│  ├── FTS5 search (full-text, top 50)                     │
-│  ├── RRF Fusion (k=60)                                   │
-│  └── Cross-encoder rerank → top K                        │
-├──────────────────────────────────────────────────────────┤
-│  WORKER THREADS                                          │
-│  ├── AI Pool (4 threads)                                 │
-│  │   ├── nomic-embed-text-v1.5 (GGUF, 768d)             │
-│  │   └── Xenova/ms-marco-MiniLM-L-6-v2 (ONNX)           │
-│  └── Parser Pool (2 threads)                             │
-│      └── Tree-sitter CAST chunker (6 languages)          │
-├──────────────────────────────────────────────────────────┤
-│  DATABASE (SQLite + sqlite-vec + FTS5)                   │
-│  ├── files, chunks, vec_chunks, fts_chunks               │
-│  ├── projects, dependencies, file_imports                │
-│  ├── query_embedding_cache, search_metrics               │
-│  └── Pragmas: WAL, 64MB cache, 256MB mmap, temp in RAM   │
-├──────────────────────────────────────────────────────────┤
-│  INGESTION (src/ingestion/)                              │
-│  ├── bootstrap.ts — Clone + bulk index                   │
-│  ├── sync_handler.ts — Parse, chunk, embed, store        │
-│  └── cleanup.ts — Cascading deletion                     │
-└──────────────────────────────────────────────────────────┘
-```
-
-## Phase Status
-
-| Phase | Scope | Status |
-|---|---|---|
-| **Phase 1** | Code search (semantic + exact), file read, dependencies, project info | 🔵 Planning Complete |
-| **Phase 2** | Webhooks, PR data, real-time sync | ⚪ Deferred |
+## TOOL USAGE GUIDELINES
+* **Always** prioritize `mcp2_read_full_file` over assuming file contents.
+* **Never** hallucinate import paths; verify them with `mcp2_get_file_dependencies`.
+* **If unsure**, ask the user for clarification rather than guessing.
