@@ -192,3 +192,89 @@ steps:
       3. Ask the user: "Ready to commit?"
 
       
+
+
+
+
+standard migration workflow just "reads and writes," but a RAG-enhanced workflow acts like a senior architect who knows the entire history of both the old and new projects.
+
+To use your internal-code-brain (RAG) "better," we need to shift from simple file reading to Knowledge Graph Exploration and Semantic Pattern Matching.
+
+Here are the RAG-Optimized MFE Migration Workflows.
+
+Key RAG Strategy Changes
+Graph First: We don't just read the file; we map its dependencies to catch hidden business logic in utility files.
+
+Semantic Equivalency: We don't guess the new component; we use search_semantic_code to find the official replacement in the new MFE.
+
+Reference Implementation: We force the AI to read a "Gold Standard" file from the new repo before writing a single line of code.
+
+1. The RAG Analyst (.windsurf/workflows/mfe_analyze.md)
+Goal: Map the entire legacy tree and find the exact matches in the new system.
+
+Markdown
+description: Deep RAG analysis of legacy code to map business logic and dependencies
+steps:
+  - step: Legacy Context Explosion
+    instruction: |
+      1. **Read Source:** Use `mcp2_read_full_file` on the target Legacy File.
+      2. **Map Dependencies (RAG Power):** Use `mcp2_get_file_dependencies` to identify *all* imported utils, hooks, and sub-components.
+      3. **Trace Logic:** If the file uses a custom hook (e.g., `useOldAuth`), use `mcp2_read_full_file` on that hook to understand the *hidden* business logic.
+
+  - step: Semantic Mapping (The "Smart" Search)
+    instruction: |
+      For every major feature identified (e.g., "Date Picker", "User Validation", "API Call"):
+      1. **Semantic Search:** Use `mcp2_search_semantic_code` in the **NEW MFE Repo** to find the equivalent.
+         * *Query Example:* "How to handle date picking in new MFE" or "Standard user validation hook".
+      2. **Exact Match:** Use `mcp2_search_exact_match` to check if specific constants/enums exist in the new repo.
+
+  - step: Gap Analysis & Plan
+    instruction: |
+      Create `MIGRATION_PLAN.md`.
+      - **Component Map:** Old `OldDatePicker` -> New `SharedMFE.DatePicker`.
+      - **Logic Map:** Old `utils.validateUser()` -> New `hooks.useUserValidation()`.
+      - **Missing Assets:** List anything that has NO match in the new system (needs to be built from scratch).
+2. The RAG Builder (.windsurf/workflows/mfe_build.md)
+Goal: Code using "Gold Standard" patterns found via RAG.
+
+Markdown
+description: Implements MFE components using RAG-retrieved reference patterns
+steps:
+  - step: Pattern Retrieval (The "Gold Standard")
+    instruction: |
+      1. **Find a Reference:** Use `mcp2_get_project_info` or `mcp2_search_semantic_code` to find a *completed, high-quality* file in the new MFE repo that is similar to what we are building.
+      2. **Ingest Pattern:** Use `mcp2_read_full_file` on that reference file.
+      3. **Analyze Style:** Note the imports, folder structure, CSS modules usage, and testing patterns.
+
+  - step: Hallucination Guard (Pre-Code)
+    instruction: |
+      1. Read the `MIGRATION_PLAN.md`.
+      2. **Verify Imports:** Before writing imports, run `mcp2_check_ai_hallucinations` on the proposed list.
+      3. **Check Libraries:** Use `mcp2_check_dependency_usage` to ensure we are using the correct version of shared MFE libraries (e.g., `@my-org/ui-kit`).
+
+  - step: Implementation
+    instruction: |
+      1. Create the new file.
+      2. **Strict Copying:** Implement the logic using *only* the verified imports and the style of the Reference File.
+      3. **No Legacy:** Do NOT import any files from the `legacy/` folder unless explicitly authorized.
+3. The RAG Auditor (.windsurf/workflows/mfe_audit.md)
+Goal: Verify not just syntax, but architectural alignment.
+
+Markdown
+description: Verifies code against the Knowledge Graph and Standards
+steps:
+  - step: Architectural Integrity
+    instruction: |
+      1. **Graph Check:** Use `mcp2_parse_repository_graph` (if needed) to ensure the new component fits into the dependency tree correctly (no circular dependencies).
+      2. **Legacy Leak:** Use `mcp2_get_file_dependencies` on the *new* file. If it imports *anything* from a legacy path, FAIL immediately.
+
+  - step: Logic Parity
+    instruction: |
+      1. Compare the new code against the *requirements* found in the Legacy Analysis.
+      2. Did we miss any edge cases? (Refer back to the `mcp2_read_full_file` output of the legacy logic).
+
+  - step: Browser & Test
+    instruction: |
+      1. Run Unit Tests.
+      2. (If Web) Use `ChromeDevTools_navigate_page` and `ChromeDevTools_take_snapshot` to verify the component renders without console errors.
+      3. Update `MIGRATION_PLAN.md` to [MIGRATED].
