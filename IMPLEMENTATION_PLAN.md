@@ -1,27 +1,58 @@
-Here is the enhanced "Universal Implementation Plan Generator" workflow that actively integrates your Internal Code Brain MCP tools. This ensures that any new plan automatically aligns with your enterprise's existing architecture, reuses internal code, and strictly uses approved dependencies.
+Here are the two follow-up workflows to complete your development lifecycle.
 
-You can update your .windsurf/workflows/create-plan.md file with this version:
+Now that you have /create-plan to design the architecture, you can use /implement-plan to safely write the code using enterprise context, and /verify-code to rigorously audit the final output before committing.
 
-Universal Enterprise Implementation Plan Generator
-Description: Creates a step-by-step implementation plan for any task while leveraging the Internal Code Brain MCP to ensure enterprise alignment, reuse existing code, and validate dependencies.
+1. The Implementation Workflow
+Save this file as .windsurf/workflows/implement-plan.md. This workflow guides the AI to execute the steps in your plan while actively using the Code Brain to fetch real syntax, preventing it from guessing how internal libraries work.
+
+Enterprise Plan Implementation
+Description: Executes an existing implementation plan step-by-step, actively querying the Internal Code Brain MCP to fetch exact syntax, internal APIs, and enterprise coding standards before writing code.
 
 Instructions
 Cascade, please execute the following steps in order:
 
-Context Gathering: Ask the user what feature, bug fix, or project they want to build if they haven't specified it.
+Read the Plan: Locate and read the IMPLEMENTATION_PLAN.md file in the root directory. Identify the next unchecked step.
 
-Enterprise Discovery (MCP): Before planning new logic, invoke the search_semantic_code MCP tool using the core concepts of the user's request. Identify if a similar feature, class, or utility already exists in the internal codebase to prevent duplicated effort.
+Contextual Retrieval (MCP): Before writing any code for this step, identify the core internal components needed.
 
-Dependency Planning (MCP): Identify the key libraries or packages needed for this task. Invoke the check_dependency_usage MCP tool to see if these libraries are already approved and used in other enterprise repositories, and note the standard version to use.
+Invoke find_symbol to fetch the exact Abstract Syntax Tree (AST) definition and parameters of any internal classes or functions you are about to use.
 
-Impact Analysis (MCP): If this task involves modifying an existing core feature, invoke the query_knowledge_graph tool (using query_type="call_chain") or the get_file_dependencies tool on the target files to map out the blast radius of the proposed changes.
+Invoke search_semantic_code with source="examples" to pull curated enterprise examples of how this specific logic should be implemented.
 
-Task Breakdown: Break the objective into actionable phases (e.g., Phase 1: Setup, Phase 2: Core Logic, Phase 3: Integration, Phase 4: Testing).
+Code Generation: Write the code for the current step. Ensure you strictly follow the syntax and patterns returned by the MCP tools in Step 2.
 
-Document Generation: Create a new file named IMPLEMENTATION_PLAN.md in the root directory. Format the breakdown as a strict Markdown checklist (- [ ]). In the document, explicitly reference any internal enterprise functions found in Step 2 that should be reused, and list the approved dependencies found in Step 3.
+Local Integration Check (MCP): If you created a new internal utility or modified a core file, invoke get_file_dependencies to ensure the new imports align with the project's existing architecture.
 
-Execution Handoff: Present a brief summary of the generated plan. Remind the user to review the markdown file and suggest turning on Windsurf's "Planning Mode" to begin execution.
+Update Plan & Pause: Update IMPLEMENTATION_PLAN.md by checking off the completed step (- [x]). Summarize what was just built and ask the user if you should proceed to the next step.
 
-By embedding these specific MCP tool calls (search_semantic_code, check_dependency_usage, and query_knowledge_graph), the AI will stop giving generic, boilerplate implementation steps. Instead, it will proactively query your SQLite vector database and AST graph to generate a plan custom-tailored to how your organization already writes software.
+2. The Verification & Audit Workflow
+Save this file as .windsurf/workflows/verify-code.md. This acts as your automated enterprise security and quality gate. It ensures the AI didn't hallucinate dependencies and maps out the "blast radius" of the new code.
 
-Once saved, developers can run this by simply typing /create-plan in the chat, and Cascade will sequentially process each MCP tool step before generating the final checklist document.
+Enterprise Code Verification & Audit
+Description: Performs a rigorous pre-commit audit on all modified code, utilizing the Internal Code Brain MCP to detect AI hallucinations, validate dependencies, and assess cross-repository impact.
+
+Instructions
+Cascade, please execute the following steps in order:
+
+Diff Analysis: Review all uncommitted changes in the current workspace. Identify all newly added functions, modified logic, and new imports.
+
+Hallucination Audit (MCP): Extract all internal function calls, class instantiations, and type references from the new code. Invoke the check_ai_hallucinations MCP tool to verify that every single identifier actually exists in the enterprise AST knowledge graph.
+
+Dependency Audit (MCP): Identify any new external packages added to package.json, requirements.txt, etc. Invoke the check_dependency_usage MCP tool to verify if this package version is approved and currently used by other enterprise repositories.
+
+Blast Radius / Impact Analysis (MCP): For every existing core file that was modified, invoke query_knowledge_graph using query_type="call_chain". Map out the downstream services or internal repositories that rely on this modified code to ensure we haven't introduced breaking changes.
+
+Audit Report Generation: Create a final summary for the developer.
+
+If hallucinations are detected, immediately flag them as CRITICAL and propose the correct internal symbol.
+
+List the blast radius (who is affected by these changes).
+
+Provide a final "Pass/Fail" grade for enterprise compliance.
+
+How to use the complete lifecycle in Windsurf:
+Start: Type /create-plan build a new payment gateway -> Windsurf creates your checklist.
+
+Build: Type /implement-plan -> Windsurf reads the first step, fetches your internal API docs via SQLite, writes the code, and checks off the box.
+
+Audit: Type /verify-code -> Windsurf double-checks its own work against the AST graph to guarantee it didn't invent fake internal functions.
